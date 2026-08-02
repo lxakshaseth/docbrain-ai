@@ -26,6 +26,14 @@ const redisOptions: RedisOptions = {
 export const redisPublisher = new Redis(redisOptions);
 export const redisSubscriber = new Redis(redisOptions);
 
+redisPublisher.on('error', (err) => {
+  logger.error('Redis Publisher Connection Error:', err.message);
+});
+
+redisSubscriber.on('error', (err) => {
+  logger.error('Redis Subscriber Connection Error:', err.message);
+});
+
 export const initRedis = async (): Promise<void> => {
   try {
     await redisPublisher.connect();
