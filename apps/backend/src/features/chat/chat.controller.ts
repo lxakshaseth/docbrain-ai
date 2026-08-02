@@ -24,6 +24,14 @@ export class ChatController {
     return ApiResult.success(res, messages, 'Fetched chat history');
   });
 
+  public static getMessagesForConversation = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.id;
+    const conversationId = req.params.conversationId;
+
+    const messages = await ChatService.getChatHistory(userId, undefined, conversationId);
+    return ApiResult.success(res, messages, 'Fetched conversation messages');
+  });
+
   public static createConversation = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user!.id;
     const { documentId, title } = req.body;

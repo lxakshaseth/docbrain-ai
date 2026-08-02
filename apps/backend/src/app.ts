@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { config } from './config/env.js';
 import { logger } from './core/logger.js';
 import { ApiResult } from './utils/apiResponse.js';
-import { initRedis, checkRedisHealth } from './redis/redisClient.js';
+import { initRedis, checkRedisHealth, closeRedisConnections } from './redis/redisClient.js';
 import { startRedisSubscriber } from './redis/redisSubscriber.js';
 import { setupSwagger } from './config/swagger.js';
 
@@ -24,11 +24,15 @@ setupSwagger(app);
 
 // Health Check Endpoint
 app.get('/health', (_req: Request, res: Response) => {
-  return ApiResult.success(res, {
-    status: 'online',
-    timestamp: new Date().toISOString(),
-    env: config.env,
-  }, 'Service Health OK');
+  return ApiResult.success(
+    res,
+    {
+      status: 'online',
+      timestamp: new Date().toISOString(),
+      env: config.env,
+    },
+    'Service Health OK'
+  );
 });
 
 // Redis Health Check Endpoint
@@ -48,21 +52,25 @@ app.use('/api/v1/chat', chatRoutes);
 
 // Root Endpoint
 app.get('/api/v1', (_req: Request, res: Response) => {
-  return ApiResult.success(res, {
-    version: '1.0.0',
-    description: 'PDF Knowledge Base AI Chatbot Backend API',
-    swaggerDocs: '/api-docs',
-    endpoints: [
-      '/api/v1/auth/login',
-      '/api/v1/documents/upload',
-      '/api/v1/documents',
-      '/api/v1/documents/:id',
-      '/api/v1/documents/:id/reprocess',
-      '/api/v1/chat',
-      '/api/v1/chat/history',
-      '/health/redis',
-    ]
-  }, 'API v1 Root');
+  return ApiResult.success(
+    res,
+    {
+      version: '1.0.0',
+      description: 'PDF Knowledge Base AI Chatbot Backend API',
+      swaggerDocs: '/api-docs',
+      endpoints: [
+        '/api/v1/auth/login',
+        '/api/v1/documents/upload',
+        '/api/v1/documents',
+        '/api/v1/documents/:id',
+        '/api/v1/documents/:id/reprocess',
+        '/api/v1/chat',
+        '/api/v1/chat/history',
+        '/health/redis',
+      ],
+    },
+    'API v1 Root'
+  );
 });
 
 // 404 Route Handler
@@ -78,6 +86,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   return ApiResult.error(res, message, statusCode, err.code || 'INTERNAL_ERROR', err.details);
 });
 
+let server: ReturnType<typeof app.listen> | null = null;
+
 // Server Initialization
 const startServer = async () => {
   try {
@@ -89,15 +99,36 @@ const startServer = async () => {
     await initRedis();
     await startRedisSubscriber();
 
-    app.listen(config.port, () => {
+    server = app.listen(config.port, () => {
       logger.info(`Node Backend running on port ${config.port} in ${config.env} mode`);
       logger.info(`Swagger API Docs available at http://localhost:${config.port}/api-docs`);
     });
-  } catch (error) {
-    logger.error('Failed to start Node Backend:', error);
+  } catch (error: any) {
+    logger.error('Failed to start Node Backend:', error.message || error);
     process.exit(1);
   }
 };
+
+// Graceful Shutdown Handlers
+const handleShutdown = async (signal: string) => {
+  logger.info(`Received ${signal}. Initiating graceful shutdown...`);
+  if (server) {
+    server.close(async () => {
+      logger.info('HTTP server closed');
+      await closeRedisConnections();
+      await mongoose.disconnect();
+      logger.info('MongoDB disconnected cleanly');
+      process.exit(0);
+    });
+  } else {
+    await closeRedisConnections();
+    await mongoose.disconnect();
+    process.exit(0);
+  }
+};
+
+process.on('SIGINT', () => handleShutdown('SIGINT'));
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
 
 startServer();
 

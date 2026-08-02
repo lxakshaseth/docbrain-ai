@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useChatStore } from '../../store/useChatStore';
 import { useDocumentStore } from '../../store/useDocumentStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -14,9 +14,6 @@ export const ChatBox: React.FC = () => {
   const {
     activeConversation,
     setActiveConversation,
-    messages,
-    setMessages,
-    addMessage,
     isStreaming,
     setIsStreaming,
   } = useChatStore();
@@ -24,26 +21,45 @@ export const ChatBox: React.FC = () => {
   const { activeDocument } = useDocumentStore();
   const { token, user, setAuthModalOpen } = useAuthStore();
   const [inputQuery, setInputQuery] = useState('');
+  // Local optimistic messages (shown before server confirms)
+  const [optimisticMessages, setOptimisticMessages] = useState<IMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  const { data: conversations = [] } = useConversationsQuery();
   const { data: fetchedMessages = [] } = useMessagesQuery(activeConversation?.id || null);
   const sendMessageMutation = useSendMessageMutation();
 
+  // Clear optimistic messages when server data arrives with assistant response
   useEffect(() => {
     if (fetchedMessages.length > 0) {
-      setMessages(fetchedMessages);
+      const lastMsg = fetchedMessages[fetchedMessages.length - 1];
+      if (lastMsg && lastMsg.sender === 'assistant') {
+        setOptimisticMessages([]);
+        setIsStreaming(false);
+      }
     }
   }, [fetchedMessages]);
 
-  const scrollToBottom = () => {
+  // Clear optimistic messages when switching conversations / documents
+  useEffect(() => {
+    setOptimisticMessages([]);
+    setIsStreaming(false);
+  }, [activeConversation?.id]);
+
+  // Merge server messages with local optimistic messages
+  const displayMessages: IMessage[] = fetchedMessages.length > 0
+    ? [...fetchedMessages, ...optimisticMessages.filter(
+        m => !fetchedMessages.some(f => f.content === m.content && f.sender === m.sender)
+      )]
+    : optimisticMessages;
+
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isStreaming]);
+  }, [displayMessages, isStreaming, scrollToBottom]);
 
   const handleSendMessageText = async (textToSend: string) => {
     if (!textToSend.trim() || isStreaming) return;
@@ -58,7 +74,7 @@ export const ChatBox: React.FC = () => {
     setInputQuery('');
     setIsStreaming(true);
 
-    // Optimistic User Message
+    // Optimistic User Message — shown immediately in UI
     const userMsg: IMessage = {
       id: `temp_${Date.now()}`,
       conversationId: activeConversation?.id || 'temp_conv',
@@ -66,7 +82,12 @@ export const ChatBox: React.FC = () => {
       content: textToSend,
       createdAt: new Date().toISOString(),
     };
-    addMessage(userMsg);
+    setOptimisticMessages(prev => [...prev, userMsg]);
+
+    // Safety timeout in case backend/AI service hangs
+    const timeoutId = setTimeout(() => {
+      setIsStreaming(false);
+    }, 45000);
 
     try {
       const resData = await sendMessageMutation.mutateAsync({
@@ -89,16 +110,14 @@ export const ChatBox: React.FC = () => {
         });
       }
 
-      // Poll/refetch messages after Python completes Redis stream & saves to MongoDB
-      setTimeout(() => {
-        if (targetConvId) {
-          queryClient.invalidateQueries({ queryKey: ['messages', targetConvId] });
-          queryClient.invalidateQueries({ queryKey: ['conversations'] });
-        }
-        setIsStreaming(false);
-      }, 3000);
+      if (targetConvId) {
+        queryClient.invalidateQueries({ queryKey: ['messages', targetConvId] });
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      }
     } catch (err) {
       console.error('Failed to send message:', err);
+      clearTimeout(timeoutId);
+      setOptimisticMessages([]);
       setIsStreaming(false);
     }
   };
@@ -128,7 +147,10 @@ export const ChatBox: React.FC = () => {
 
         {activeDocument && (
           <button
-            onClick={() => setActiveConversation(null)}
+            onClick={() => {
+              setActiveConversation(null);
+              setOptimisticMessages([]);
+            }}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 text-xs font-semibold rounded-lg transition-all"
           >
             <Plus className="w-4 h-4" /> New Session
@@ -146,7 +168,7 @@ export const ChatBox: React.FC = () => {
               Upload or select a PDF document from the left sidebar to start AI ground-truth Q&A.
             </p>
           </div>
-        ) : messages.length === 0 ? (
+        ) : displayMessages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500">
             <Sparkles className="w-10 h-10 mb-3 text-blue-400/60" />
             <p className="text-sm font-medium text-slate-300">Knowledge Base Ready</p>
@@ -155,7 +177,7 @@ export const ChatBox: React.FC = () => {
             </p>
           </div>
         ) : (
-          messages.map((msg) => (
+          displayMessages.map((msg) => (
             <MessageItem
               key={msg.id}
               message={msg}
@@ -163,6 +185,23 @@ export const ChatBox: React.FC = () => {
             />
           ))
         )}
+
+        {/* Streaming Indicator */}
+        {isStreaming && (
+          <div className="flex gap-3 justify-start mb-5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
+              <Loader2 className="w-4 h-4 animate-spin" />
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 text-sm text-slate-400 shadow-lg">
+              <span className="inline-flex gap-1">
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:300ms]" />
+              </span>
+            </div>
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
