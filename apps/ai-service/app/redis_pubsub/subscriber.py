@@ -28,7 +28,8 @@ class RedisSubscriberWorker:
                         query=data["query"],
                         collection_name=data["vectorCollectionId"],
                         conversation_id=data["conversationId"],
-                        request_id=data["requestId"]
+                        request_id=data["requestId"],
+                        correlation_id=correlation_id
                     )
                 return  # Success, exit retry loop
             except Exception as e:

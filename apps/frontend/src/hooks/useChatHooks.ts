@@ -21,7 +21,7 @@ export const useConversationsQuery = () => {
 
 export const useMessagesQuery = (conversationId: string | null) => {
   const { token } = useAuthStore();
-  const { isStreaming } = useChatStore();
+  const isStreaming = useChatStore((state) => state.isStreaming);
 
   return useQuery({
     queryKey: ['messages', conversationId, token],

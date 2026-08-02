@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,10 +8,17 @@ from app.core.exceptions import AIServiceException
 from app.api.routes import router
 from app.redis_pubsub.subscriber import redis_subscriber_worker
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting Python AI Microservice...")
+    redis_subscriber_worker.start()
+    yield
+
 app = FastAPI(
     title="PDF Knowledge Base AI Service",
     description="Python RAG Engine powered by LangChain, LangGraph, Gemini & ChromaDB",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -22,11 +30,6 @@ app.add_middleware(
 )
 
 app.include_router(router)
-
-@app.on_event("startup")
-def startup_event():
-    logger.info("Starting Python AI Microservice...")
-    redis_subscriber_worker.start()
 
 @app.exception_handler(AIServiceException)
 async def ai_service_exception_handler(request: Request, exc: AIServiceException):

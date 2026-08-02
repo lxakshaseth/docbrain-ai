@@ -2,7 +2,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { documentRepository } from '../../repositories/document.repository.js';
 import { AppError } from '../../core/appError.js';
-import { redisPublisher } from '../../redis/redisClient.js';
+import { redisPublisher, isRedisConnected } from '../../redis/redisClient.js';
 import { REDIS_CHANNELS, DocIngestRequestPayload, IDocument } from '@pdf-chatbot/shared';
 
 export class DocumentService {
@@ -38,6 +38,13 @@ export class DocumentService {
       fileName: file.originalname,
       vectorCollectionId,
     };
+
+    if (!isRedisConnected()) {
+      throw new AppError(
+        'Message broker (Redis) is currently unavailable. Document ingestion task could not be queued.',
+        503
+      );
+    }
 
     // Publish ingestion task to Redis Pub/Sub channel for Python AI Service
     await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));
@@ -89,6 +96,13 @@ export class DocumentService {
       fileName: doc.fileName,
       vectorCollectionId: doc.vectorCollectionId,
     };
+
+    if (!isRedisConnected()) {
+      throw new AppError(
+        'Message broker (Redis) is currently unavailable. Document reprocess task could not be queued.',
+        503
+      );
+    }
 
     // Re-publish ingestion task to Redis
     await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));

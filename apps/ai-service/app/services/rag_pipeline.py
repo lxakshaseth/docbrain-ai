@@ -10,12 +10,13 @@ class RAGPipelineService:
         collection_name: str,
         conversation_id: str = None,
         request_id: str = None,
-        top_k: int = 4
+        top_k: int = 4,
+        correlation_id: str = None
     ) -> Dict[str, Any]:
-        logger.info(f"Running RAG Pipeline for query='{query}' on col='{collection_name}'")
+        logger.info(f"Running RAG Pipeline for query='{query}' on col='{collection_name}' [corrId={correlation_id}]")
 
         if request_id and conversation_id:
-            redis_publisher.publish_chat_status(request_id, conversation_id, "started")
+            redis_publisher.publish_chat_status(request_id, conversation_id, "started", correlation_id=correlation_id)
 
         initial_state = {
             "query": query,
@@ -28,33 +29,46 @@ class RAGPipelineService:
             "suggested_questions": []
         }
 
-        # Run LangGraph StateGraph Execution
-        final_state = rag_graph.invoke(initial_state)
+        try:
+            # Run LangGraph StateGraph Execution
+            final_state = rag_graph.invoke(initial_state)
 
-        answer = final_state.get("answer", "")
-        sources = final_state.get("sources", [])
-        suggested = final_state.get("suggested_questions", [])
+            answer = final_state.get("answer", "")
+            sources = final_state.get("sources", [])
+            suggested = final_state.get("suggested_questions", [])
 
-        if request_id and conversation_id:
-            # Stream tokens over Redis
-            words = answer.split(" ")
-            for i, word in enumerate(words):
-                chunk_text = word + (" " if i < len(words) - 1 else "")
-                redis_publisher.publish_chat_chunk(request_id, conversation_id, chunk_text, i)
+            if request_id and conversation_id:
+                # Stream tokens over Redis
+                words = answer.split(" ")
+                for i, word in enumerate(words):
+                    chunk_text = word + (" " if i < len(words) - 1 else "")
+                    redis_publisher.publish_chat_chunk(request_id, conversation_id, chunk_text, i, correlation_id=correlation_id)
 
-            # Publish final completion status over Redis
-            redis_publisher.publish_chat_status(
-                request_id=request_id,
-                conversation_id=conversation_id,
-                status="completed",
-                answer=answer,
-                sources=sources,
-                suggested_questions=suggested
-            )
+                # Publish final completion status over Redis
+                redis_publisher.publish_chat_status(
+                    request_id=request_id,
+                    conversation_id=conversation_id,
+                    status="completed",
+                    answer=answer,
+                    sources=sources,
+                    suggested_questions=suggested,
+                    correlation_id=correlation_id
+                )
 
-        return {
-            "answer": answer,
-            "sources": sources,
-            "suggested_questions": suggested,
-            "conversation_id": conversation_id
-        }
+            return {
+                "answer": answer,
+                "sources": sources,
+                "suggested_questions": suggested,
+                "conversation_id": conversation_id
+            }
+        except Exception as e:
+            logger.error(f"Error in RAG pipeline execution: {e}")
+            if request_id and conversation_id:
+                redis_publisher.publish_chat_status(
+                    request_id=request_id,
+                    conversation_id=conversation_id,
+                    status="error",
+                    error_message=str(e),
+                    correlation_id=correlation_id
+                )
+            raise

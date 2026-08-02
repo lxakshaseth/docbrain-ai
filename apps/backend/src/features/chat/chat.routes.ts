@@ -12,5 +12,6 @@ router.post('/', validateRequest(ChatQuerySchema), ChatController.processChat);
 router.get('/history', validateRequest(ChatHistoryQuerySchema), ChatController.getHistory);
 router.post('/conversations', ChatController.createConversation);
 router.get('/conversations', ChatController.listConversations);
+router.get('/conversations/:conversationId/messages', ChatController.getMessagesForConversation);
 
 export default router;

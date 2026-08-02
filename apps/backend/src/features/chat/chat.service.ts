@@ -3,7 +3,7 @@ import { conversationRepository } from '../../repositories/conversation.reposito
 import { messageRepository } from '../../repositories/message.repository.js';
 import { documentRepository } from '../../repositories/document.repository.js';
 import { AppError } from '../../core/appError.js';
-import { redisPublisher } from '../../redis/redisClient.js';
+import { redisPublisher, isRedisConnected } from '../../redis/redisClient.js';
 import { REDIS_CHANNELS, ChatStreamRequestPayload, IConversation, IMessage } from '@pdf-chatbot/shared';
 
 export class ChatService {
@@ -102,6 +102,13 @@ export class ChatService {
       query,
       vectorCollectionId: doc.vectorCollectionId,
     };
+
+    if (!isRedisConnected()) {
+      throw new AppError(
+        'Message broker (Redis) is currently unavailable. Chat request could not be queued.',
+        503
+      );
+    }
 
     // Dispatch RAG task to Redis Pub/Sub
     await redisPublisher.publish(REDIS_CHANNELS.CHAT_STREAM_REQUEST, JSON.stringify(payload));

@@ -50,7 +50,7 @@ export interface ChatStreamChunkPayload extends BaseEventEnvelope {
 export interface ChatStreamStatusPayload extends BaseEventEnvelope {
   requestId: string;
   conversationId: string;
-  status: 'started' | 'completed' | 'failed';
+  status: 'started' | 'completed' | 'failed' | 'error';
   answer?: string;
   sources?: Array<{
     pageNumber: number;
