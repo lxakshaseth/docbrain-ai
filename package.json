@@ -1,0 +1,33 @@
+{
+  "name": "pdf-kb-ai-chatbot-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-Ready PDF Knowledge Base AI Chatbot Monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:ai": "cd apps/ai-service && uvicorn main:app --reload --port 8000",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "ai",
+    "rag",
+    "langchain",
+    "fastapi",
+    "express",
+    "nextjs",
+    "chromadb",
+    "redis"
+  ],
+  "author": "",
+  "license": "MIT"
+}

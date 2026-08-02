@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # Redis Service (Pub/Sub & Cache)
+  # -------------------------------------------------------------
+  redis:
+    image: redis:7.2-alpine
+    container_name: pdf_chatbot_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --loglevel notice
+    volumes:
+      - redis_data:/data
+    networks:
+      - pdf_chatbot_net
+
+  # -------------------------------------------------------------
+  # Chroma Vector Database
+  # -------------------------------------------------------------
+  chromadb:
+    image: chromadb/chroma:0.5.20
+    container_name: pdf_chatbot_chroma
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    volumes:
+      - chroma_data:/chroma/chroma
+    networks:
+      - pdf_chatbot_net
+
+  # -------------------------------------------------------------
+  # Node.js Backend Service
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: pdf_chatbot_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/pdf_chatbot}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret}
+    depends_on:
+      - redis
+    networks:
+      - pdf_chatbot_net
+
+  # -------------------------------------------------------------
+  # Python AI Service (FastAPI + LangChain + Groq / Gemini)
+  # -------------------------------------------------------------
+  ai-service:
+    build:
+      context: ./apps/ai-service
+      dockerfile: Dockerfile
+    container_name: pdf_chatbot_ai_service
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - redis
+      - chromadb
+    networks:
+      - pdf_chatbot_net
+
+  # -------------------------------------------------------------
+  # Next.js Frontend Service
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    container_name: pdf_chatbot_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - pdf_chatbot_net
+
+networks:
+  pdf_chatbot_net:
+    driver: bridge
+
+volumes:
+  redis_data:
+  chroma_data:
