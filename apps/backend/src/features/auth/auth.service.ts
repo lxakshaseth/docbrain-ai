@@ -41,7 +41,7 @@ export class AuthService {
       throw new AppError('Invalid email or password', 401);
     }
 
-    const isMatch = await bcrypt.compare(dto.password, (userDoc as any).passwordHash);
+    const isMatch = await bcrypt.compare(dto.password, userDoc.passwordHash);
     if (!isMatch) {
       throw new AppError('Invalid email or password', 401);
     }

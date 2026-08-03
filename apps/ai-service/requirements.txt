@@ -27,6 +27,8 @@ chromadb-client==0.5.20
 redis==5.0.8
 sentence-transformers==3.0.1
 pypdf==4.3.1
+pymupdf>=1.28.0
+pdfplumber>=0.11.0
 
 # Testing
 pytest==9.1.1
