@@ -7,13 +7,17 @@ import { LogIn, UserPlus, X, ShieldCheck } from 'lucide-react';
 import { UserRole } from '@pdf-chatbot/shared';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, setAuthModalOpen } = useAuthStore();
-  const [isLogin, setIsLogin] = useState(true);
+  const { isAuthModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode } = useAuthStore();
+  const [isLogin, setIsLogin] = useState(authModalMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<UserRole>('user');
   const [error, setError] = useState('');
+
+  React.useEffect(() => {
+    setIsLogin(authModalMode === 'login');
+  }, [authModalMode, isAuthModalOpen]);
 
   const loginMutation = useLoginMutation();
   const registerMutation = useRegisterMutation();
