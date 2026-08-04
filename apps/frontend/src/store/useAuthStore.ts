@@ -5,9 +5,11 @@ interface AuthState {
   user: IUser | null;
   token: string | null;
   isAuthModalOpen: boolean;
+  authModalMode: 'login' | 'register';
   setAuth: (user: IUser, token: string) => void;
   logout: () => void;
-  setAuthModalOpen: (open: boolean) => void;
+  setAuthModalOpen: (open: boolean, mode?: 'login' | 'register') => void;
+  setAuthModalMode: (mode: 'login' | 'register') => void;
   initAuth: () => void;
 }
 
@@ -15,6 +17,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
   isAuthModalOpen: false,
+  authModalMode: 'login',
 
   setAuth: (user, token) => {
     if (typeof window !== 'undefined') {
@@ -30,7 +33,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, token: null });
   },
 
-  setAuthModalOpen: (open) => set({ isAuthModalOpen: open }),
+  setAuthModalOpen: (open, mode = 'login') => set({ isAuthModalOpen: open, authModalMode: mode }),
+  
+  setAuthModalMode: (mode) => set({ authModalMode: mode }),
 
   initAuth: () => {
     if (typeof window !== 'undefined') {
