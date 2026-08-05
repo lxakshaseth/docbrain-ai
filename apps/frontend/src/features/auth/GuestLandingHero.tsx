@@ -20,7 +20,8 @@ export const GuestLandingHero: React.FC = () => {
   const { setAuthModalOpen } = useAuthStore();
 
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-950 text-slate-100 p-4 md:p-8 flex flex-col items-center justify-start space-y-12 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+    <div className="w-full flex-1 overflow-y-auto bg-slate-950 text-slate-100 animate-in fade-in duration-300">
+      <div className="max-w-7xl mx-auto p-4 md:p-8 flex flex-col items-center justify-start space-y-12 w-full">
       {/* Top Hero Section */}
       <div className="text-center space-y-6 max-w-3xl pt-4">
         {/* Pill Badge */}
@@ -184,5 +185,6 @@ export const GuestLandingHero: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
