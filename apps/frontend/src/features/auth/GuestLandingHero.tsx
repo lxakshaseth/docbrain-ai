@@ -20,26 +20,26 @@ export const GuestLandingHero: React.FC = () => {
   const { setAuthModalOpen } = useAuthStore();
 
   return (
-    <div className="w-full flex-1 overflow-y-auto bg-slate-950 text-slate-100 animate-in fade-in duration-300">
+    <div className="w-full flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 animate-in fade-in duration-300 transition-colors duration-250">
       <div className="max-w-7xl mx-auto p-4 md:p-8 flex flex-col items-center justify-start space-y-12 w-full">
       {/* Top Hero Section */}
       <div className="text-center space-y-6 max-w-3xl pt-4">
         {/* Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold shadow-sm">
-          <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-300 text-xs font-semibold shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 animate-pulse" />
           <span>Full-Stack RAG Engine • Express & Python FastAPI</span>
         </div>
 
         {/* Main Title */}
-        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
           Chat with Any PDF Knowledge Base using{' '}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-300 dark:to-purple-400">
             Grounded AI Insights
           </span>
         </h1>
 
         {/* Subtitle */}
-        <p className="text-sm md:text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
+        <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
           Upload complex technical documents, research papers, or legal contracts. Extract instant ground-truth answers with precise page-level citations and semantic vector search.
         </p>
 
@@ -55,9 +55,9 @@ export const GuestLandingHero: React.FC = () => {
 
           <button
             onClick={() => setAuthModalOpen(true, 'login')}
-            className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 font-semibold text-xs rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 text-slate-800 dark:text-slate-200 font-semibold text-xs rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
           >
-            <LogIn className="w-4 h-4 text-blue-400" />
+            <LogIn className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <span>Sign In to Account</span>
           </button>
         </div>

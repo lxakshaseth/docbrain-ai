@@ -128,16 +128,16 @@ export const ChatBox: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-colors duration-250">
       {/* Header Bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60">
         <div className="flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-blue-400" />
+          <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           <div>
-            <h2 className="text-sm font-semibold text-white">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
               {activeDocument ? activeDocument.title : 'Select a PDF Document'}
             </h2>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {activeDocument
                 ? `Vector Store Collection: ${activeDocument.vectorCollectionId}`
                 : 'Upload or select a knowledge base document from sidebar'}
@@ -206,7 +206,7 @@ export const ChatBox: React.FC = () => {
       </div>
 
       {/* Input Form */}
-      <div className="p-4 border-t border-slate-800 bg-slate-900/40">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
@@ -218,7 +218,7 @@ export const ChatBox: React.FC = () => {
                 ? 'Select a document to ask questions...'
                 : 'Ask anything about your PDF document...'
             }
-            className="flex-1 px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50"
+            className="flex-1 px-4 py-3 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50 transition-colors"
           />
           <button
             type="submit"

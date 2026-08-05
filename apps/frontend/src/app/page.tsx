@@ -12,14 +12,19 @@ import { IUser } from '@pdf-chatbot/shared';
 import { UserProfileDropdown } from '../features/auth/UserProfileDropdown';
 import { GuestLandingHero } from '../features/auth/GuestLandingHero';
 
+import { useThemeStore } from '../store/useThemeStore';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
+
 export default function Home() {
   const { user, token, setAuth, logout, setAuthModalOpen, initAuth } = useAuthStore();
+  const { initTheme } = useThemeStore();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     initAuth();
+    initTheme();
   }, []);
 
   useEffect(() => {
@@ -45,17 +50,17 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-slate-100 font-sans overflow-hidden" suppressHydrationWarning>
+    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
       {/* Auth Modal */}
       <AuthModal />
 
       {/* Header Bar */}
-      <header className="relative z-50 h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-4 md:px-6 flex items-center justify-between shrink-0" suppressHydrationWarning>
+      <header className="relative z-50 h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-4 md:px-6 flex items-center justify-between shrink-0 transition-colors duration-250" suppressHydrationWarning>
         <div className="flex items-center gap-3">
           {user && (
             <button
               onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-              className="md:hidden p-2 text-slate-400 hover:text-white"
+              className="md:hidden p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               title="Toggle Sidebar"
               suppressHydrationWarning
             >
@@ -67,24 +72,26 @@ export default function Home() {
             <Cpu className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">
+            <h1 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">
               PDF Knowledge Base AI Chatbot
             </h1>
-            <p className="text-[10px] text-slate-400 hidden sm:block">Full Stack RAG Engine • Express & Python FastAPI</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">Full Stack RAG Engine • Express & Python FastAPI</p>
           </div>
         </div>
 
-        <div>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+
           {user ? (
             <UserProfileDropdown />
           ) : (
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setAuthModalOpen(true, 'login')}
-                className="px-3.5 py-1.5 bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
                 suppressHydrationWarning
               >
-                <LogIn className="w-3.5 h-3.5 text-blue-400" /> Sign In
+                <LogIn className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Sign In
               </button>
               <button
                 onClick={() => setAuthModalOpen(true, 'register')}
