@@ -104,23 +104,23 @@ export const UserProfileDropdown: React.FC = () => {
         {/* Animated Dropdown Panel */}
         {isOpen && (
           <div
-            className="absolute right-0 mt-2 w-72 rounded-2xl bg-slate-900/95 border border-slate-800 shadow-2xl backdrop-blur-md z-[100] overflow-hidden transform origin-top-right transition-all duration-200 animate-in fade-in zoom-in-95"
+            className="absolute right-0 mt-2 w-72 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 shadow-2xl backdrop-blur-md z-[100] overflow-hidden transform origin-top-right transition-all duration-200 animate-in fade-in zoom-in-95"
             role="menu"
             aria-orientation="vertical"
           >
             {/* User Info Header Card */}
-            <div className="px-4 py-3 bg-slate-800/40 border-b border-slate-800/80 flex items-center gap-3">
+            <div className="px-4 py-3 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800/80 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-md shrink-0">
                 {getInitials(user.name)}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-bold text-slate-100 truncate">{user.name}</p>
-                  <span className="inline-flex items-center gap-1 text-[9px] text-emerald-400 font-medium">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{user.name}</p>
+                  <span className="inline-flex items-center gap-1 text-[9px] text-emerald-600 dark:text-emerald-400 font-medium">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
               </div>
             </div>
 
