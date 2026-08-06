@@ -70,14 +70,14 @@ export const DocumentUpload: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-      <h3 className="text-sm font-semibold text-slate-200 mb-2 flex items-center gap-2">
-        <FileText className="w-4 h-4 text-blue-400" /> Upload PDF Document
+    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2 flex items-center gap-2">
+        <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Upload PDF Document
       </h3>
 
       <div
         onClick={() => fileInputRef.current?.click()}
-        className="cursor-pointer border-2 border-dashed border-slate-800 hover:border-blue-500/50 rounded-lg p-6 flex flex-col items-center justify-center transition-all bg-slate-950/40 hover:bg-slate-950/80 group"
+        className="cursor-pointer border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-blue-500/50 rounded-lg p-6 flex flex-col items-center justify-center transition-all bg-slate-50 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-950/80 group"
       >
         <input
           ref={fileInputRef}
@@ -86,8 +86,8 @@ export const DocumentUpload: React.FC = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        <UploadCloud className="w-8 h-8 text-slate-500 group-hover:text-blue-400 mb-2 transition-colors" />
-        <p className="text-xs font-medium text-slate-300">Click or drag PDF file to upload</p>
+        <UploadCloud className="w-8 h-8 text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 mb-2 transition-colors" />
+        <p className="text-xs font-medium text-slate-700 dark:text-slate-300">Click or drag PDF file to upload</p>
         <p className="text-[10px] text-slate-500 mt-1">Maximum 10 MB file size</p>
       </div>
 
