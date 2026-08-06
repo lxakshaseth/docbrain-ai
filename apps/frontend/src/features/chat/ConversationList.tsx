@@ -22,33 +22,46 @@ export const ConversationList: React.FC = () => {
     }
   };
 
-  if (conversations.length === 0) return null;
-
   return (
-    <div className="space-y-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-800/80">
-      <h4 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1 flex items-center gap-1.5">
-        <Clock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> Recent Sessions ({conversations.length})
-      </h4>
-
-      <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
-        {conversations.map((conv) => {
-          const isActive = activeConversation?.id === conv.id;
-          return (
-            <div
-              key={conv.id}
-              onClick={() => handleSelectConversation(conv)}
-              className={`flex items-center gap-2.5 p-2 rounded-lg cursor-pointer text-xs transition-colors ${
-                isActive
-                  ? 'bg-indigo-500/10 border border-indigo-500/40 text-indigo-600 dark:text-indigo-300 font-medium'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
-              <span className="truncate">{conv.title}</span>
-            </div>
-          );
-        })}
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex items-center justify-between px-1 mb-2">
+        <h4 className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-indigo-500" /> Recent Sessions ({conversations.length})
+        </h4>
       </div>
+
+      {conversations.length === 0 ? (
+        <div className="p-4 text-center text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+          No previous chat sessions yet.
+        </div>
+      ) : (
+        <div className="space-y-1.5 flex-1 overflow-y-auto pr-1">
+          {conversations.map((conv) => {
+            const isActive = activeConversation?.id === conv.id;
+            return (
+              <div
+                key={conv.id}
+                onClick={() => handleSelectConversation(conv)}
+                className={`flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-xs transition-all border ${
+                  isActive
+                    ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-950 dark:text-indigo-200 shadow-xs font-medium'
+                    : 'bg-white dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                  isActive
+                    ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                }`}>
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </div>
+                <span className="truncate flex-1">{conv.title}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
+

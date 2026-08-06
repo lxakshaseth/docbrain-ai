@@ -35,6 +35,7 @@ export const useMessagesQuery = (conversationId: string | null) => {
     },
     enabled: !!conversationId && !!token,
     refetchInterval: isStreaming ? 1000 : false, // Auto-poll every 1s while streaming until assistant response lands
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -53,8 +54,11 @@ export const useSendMessageMutation = () => {
       return res.data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['messages', data.conversationId] });
+      if (data?.conversationId) {
+        queryClient.invalidateQueries({ queryKey: ['messages', data.conversationId] });
+      }
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
   });
 };
+

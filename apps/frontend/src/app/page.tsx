@@ -5,13 +5,13 @@ import { useAuthStore } from '../store/useAuthStore';
 import { AuthModal } from '../features/auth/AuthModal';
 import { DocumentUpload } from '../features/documents/DocumentUpload';
 import { DocumentList } from '../features/documents/DocumentList';
+import { ConversationList } from '../features/chat/ConversationList';
 import { ChatBox } from '../features/chat/ChatBox';
 import { fetchApi } from '../lib/api-client';
-import { Cpu, LogIn, Menu, X, UserPlus, Sparkles } from 'lucide-react';
+import { Cpu, LogIn, Menu, X, Sparkles, Layers, Clock, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { IUser } from '@pdf-chatbot/shared';
 import { UserProfileDropdown } from '../features/auth/UserProfileDropdown';
 import { GuestLandingHero } from '../features/auth/GuestLandingHero';
-
 import { useThemeStore } from '../store/useThemeStore';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 
@@ -19,6 +19,8 @@ export default function Home() {
   const { user, token, setAuth, logout, setAuthModalOpen, initAuth } = useAuthStore();
   const { initTheme } = useThemeStore();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'documents' | 'history'>('documents');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -43,39 +45,53 @@ export default function Home() {
 
   if (!mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-400 font-mono text-sm">
-        Loading PDF Knowledge Base AI Chatbot...
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-400 font-sans text-sm">
+        Loading DocBrain AI...
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
+    <div className="flex flex-col h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
       {/* Auth Modal */}
       <AuthModal />
 
-      {/* Header Bar */}
-      <header className="relative z-50 h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-4 md:px-6 flex items-center justify-between shrink-0 transition-colors duration-250" suppressHydrationWarning>
+      {/* Main Header Bar */}
+      <header className="relative z-50 h-14 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-4 md:px-6 flex items-center justify-between shrink-0 transition-colors duration-250" suppressHydrationWarning>
         <div className="flex items-center gap-3">
           {user && (
-            <button
-              onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-              className="md:hidden p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-              title="Toggle Sidebar"
-              suppressHydrationWarning
-            >
-              {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            <>
+              {/* Mobile Drawer Trigger */}
+              <button
+                onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+                className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900"
+                title="Toggle Sidebar"
+                suppressHydrationWarning
+              >
+                {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+
+              {/* Desktop Sidebar Toggle */}
+              <button
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="hidden md:flex p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {isSidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              </button>
+            </>
           )}
 
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
-            <Cpu className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">
-              PDF Knowledge Base AI Chatbot
-            </h1>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">Full Stack RAG Engine • Express & Python FastAPI</p>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+              <Cpu className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:to-indigo-300">
+                DocBrain AI
+              </h1>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">Intelligent PDF Knowledge Assistant</p>
+            </div>
           </div>
         </div>
 
@@ -105,18 +121,49 @@ export default function Home() {
         </div>
       </header>
 
-      {/* View Switcher: Authenticated Workspace vs Unauthenticated SaaS Landing */}
+      {/* Main Workspace View */}
       {user ? (
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-12 p-4 gap-4 overflow-hidden relative">
-          {/* Left Sidebar (Desktop & Mobile Drawer) */}
+        <div className="flex-1 flex p-3 gap-3 overflow-hidden relative">
+          {/* Left Sidebar (Collapsible Desktop & Mobile Drawer) */}
           <aside
-            className={`fixed md:relative inset-y-0 left-0 z-40 w-80 md:w-auto md:col-span-4 lg:col-span-3 flex flex-col gap-4 overflow-hidden bg-white dark:bg-slate-950 md:bg-transparent p-4 md:p-0 transition-transform duration-300 ${
+            className={`fixed md:relative inset-y-0 left-0 z-40 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-3 shadow-xs transition-all duration-300 ${
               isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-            }`}
+            } ${isSidebarCollapsed ? 'md:hidden' : 'md:flex'}`}
           >
-            <DocumentUpload />
-            <div className="flex-1 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 overflow-hidden flex flex-col shadow-sm">
-              <DocumentList />
+            {/* Primary Action Button: Compact PDF Upload */}
+            <DocumentUpload compact />
+
+            {/* Segmented Control Tabs */}
+            <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs font-medium shrink-0">
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
+                  activeTab === 'documents'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-semibold'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" /> Documents
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
+                  activeTab === 'history'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-semibold'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5" /> History
+              </button>
+            </div>
+
+            {/* Tab Body */}
+            <div className="flex-1 overflow-hidden">
+              {activeTab === 'documents' ? (
+                <DocumentList />
+              ) : (
+                <ConversationList />
+              )}
             </div>
           </aside>
 
@@ -124,12 +171,12 @@ export default function Home() {
           {isMobileSidebarOpen && (
             <div
               onClick={() => setIsMobileSidebarOpen(false)}
-              className="fixed inset-0 z-30 bg-black/60 md:hidden"
+              className="fixed inset-0 z-30 bg-black/50 backdrop-blur-xs md:hidden"
             />
           )}
 
           {/* Main Content Area (Chat Canvas) */}
-          <main className="md:col-span-8 lg:col-span-9 h-full overflow-hidden">
+          <main className="flex-1 h-full overflow-hidden min-w-0">
             <ChatBox />
           </main>
         </div>
@@ -139,3 +186,4 @@ export default function Home() {
     </div>
   );
 }
+

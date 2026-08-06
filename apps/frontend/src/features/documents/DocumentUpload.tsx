@@ -1,25 +1,28 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { UploadCloud, CheckCircle, AlertCircle, Loader2, FileUp } from 'lucide-react';
 import { useDocumentStore } from '../../store/useDocumentStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { IDocument } from '@pdf-chatbot/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
-export const DocumentUpload: React.FC = () => {
+interface DocumentUploadProps {
+  compact?: boolean;
+  onSuccess?: () => void;
+}
+
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false, onSuccess }) => {
   const { addDocument, setActiveDocument } = useDocumentStore();
   const { token, setAuthModalOpen } = useAuthStore();
   const [uploading, setUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     if (!token) {
       setAuthModalOpen(true);
       return;
@@ -32,7 +35,7 @@ export const DocumentUpload: React.FC = () => {
     }
 
     setUploading(true);
-    setStatusMessage('Uploading & queueing for AI vector ingestion...');
+    setStatusMessage('Uploading & vectorizing PDF...');
     setIsError(false);
 
     try {
@@ -53,7 +56,8 @@ export const DocumentUpload: React.FC = () => {
         const uploadedDoc: IDocument = data.data;
         addDocument(uploadedDoc);
         setActiveDocument(uploadedDoc);
-        setStatusMessage(`'${uploadedDoc.title}' uploaded successfully! Processing chunks...`);
+        setStatusMessage(`'${uploadedDoc.title}' uploaded successfully!`);
+        if (onSuccess) onSuccess();
       } else {
         setIsError(true);
         setStatusMessage(data.message || 'Failed to upload PDF document');
@@ -69,16 +73,21 @@ export const DocumentUpload: React.FC = () => {
     }
   };
 
-  return (
-    <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
-      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2 flex items-center gap-2">
-        <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" /> Upload PDF Document
-      </h3>
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  };
 
-      <div
-        onClick={() => fileInputRef.current?.click()}
-        className="cursor-pointer border-2 border-dashed border-slate-300 dark:border-slate-800 hover:border-blue-500/50 rounded-lg p-6 flex flex-col items-center justify-center transition-all bg-slate-50 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-950/80 group"
-      >
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  };
+
+  if (compact) {
+    return (
+      <>
         <input
           ref={fileInputRef}
           type="file"
@@ -86,27 +95,73 @@ export const DocumentUpload: React.FC = () => {
           onChange={handleFileChange}
           className="hidden"
         />
-        <UploadCloud className="w-8 h-8 text-slate-400 dark:text-slate-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 mb-2 transition-colors" />
-        <p className="text-xs font-medium text-slate-700 dark:text-slate-300">Click or drag PDF file to upload</p>
-        <p className="text-[10px] text-slate-500 mt-1">Maximum 10 MB file size</p>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50"
+        >
+          {uploading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-white" />
+          ) : (
+            <FileUp className="w-4 h-4 text-blue-100" />
+          )}
+          <span>{uploading ? 'Processing PDF...' : 'Upload New PDF'}</span>
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <div className="bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-3 shadow-xs">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={handleDrop}
+        className={`cursor-pointer border border-dashed rounded-lg p-3.5 flex items-center gap-3 transition-all ${
+          isDragOver
+            ? 'border-blue-500 bg-blue-500/10'
+            : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-950/60 hover:bg-blue-50/50 dark:hover:bg-slate-900/80 hover:border-blue-500/40'
+        }`}
+      >
+        <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center shrink-0">
+          <UploadCloud className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">
+            {uploading ? 'Processing PDF...' : 'Upload PDF Document'}
+          </p>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+            Click or drop file (max 10MB)
+          </p>
+        </div>
       </div>
 
       {statusMessage && (
         <div
-          className={`mt-3 p-2.5 rounded-lg text-xs flex items-center gap-2 ${
+          className={`mt-2 p-2 rounded-lg text-[11px] flex items-center gap-2 ${
             isError
-              ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+              ? 'bg-red-500/10 text-red-500 dark:text-red-400'
               : uploading
-              ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400'
-              : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+              ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+              : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
           }`}
         >
           {uploading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-blue-400 shrink-0" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
           ) : isError ? (
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           ) : (
-            <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+            <CheckCircle className="w-3.5 h-3.5 shrink-0" />
           )}
           <span className="truncate">{statusMessage}</span>
         </div>
@@ -114,3 +169,4 @@ export const DocumentUpload: React.FC = () => {
     </div>
   );
 };
+
