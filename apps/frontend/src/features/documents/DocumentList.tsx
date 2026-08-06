@@ -57,14 +57,14 @@ export const DocumentList: React.FC = () => {
         loading={deleteMutation.isPending}
       />
 
-      <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">
+      <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
         Knowledge Base Files ({documents.length})
       </h4>
 
       {isLoading ? (
         <DocumentListSkeleton />
       ) : documents.length === 0 ? (
-        <div className="p-4 text-center text-xs text-slate-500 bg-slate-900/30 rounded-lg border border-slate-800/50">
+        <div className="p-4 text-center text-xs text-slate-500 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-slate-200 dark:border-slate-800/50">
           No documents uploaded yet.
         </div>
       ) : (
@@ -77,12 +77,12 @@ export const DocumentList: React.FC = () => {
                 onClick={() => handleSelectDocument(doc)}
                 className={`group flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
                   isActive
-                    ? 'bg-blue-600/10 border-blue-500/50 text-white shadow-md'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-300 hover:bg-slate-800/50'
+                    ? 'bg-blue-500/10 border-blue-500/50 text-blue-900 dark:text-white shadow-sm font-medium'
+                    : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <FileText className={`w-5 h-5 shrink-0 ${isActive ? 'text-blue-400' : 'text-slate-500'}`} />
+                  <FileText className={`w-5 h-5 shrink-0 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
                   <div className="min-w-0">
                     <p className="text-xs font-semibold truncate">{doc.title}</p>
                     <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1">

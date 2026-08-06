@@ -25,7 +25,7 @@ export const useLoginMutation = () => {
 export const useRegisterMutation = () => {
   const { setAuth } = useAuthStore();
   return useMutation({
-    mutationFn: async (userData: { email: string; password: string; name: string }) => {
+    mutationFn: async (userData: { email: string; password: string; name: string; role?: string }) => {
       const res = await fetchApi<any>('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),

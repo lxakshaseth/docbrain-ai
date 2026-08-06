@@ -110,12 +110,12 @@ export default function Home() {
         <div className="flex-1 grid grid-cols-1 md:grid-cols-12 p-4 gap-4 overflow-hidden relative">
           {/* Left Sidebar (Desktop & Mobile Drawer) */}
           <aside
-            className={`fixed md:relative inset-y-0 left-0 z-40 w-80 md:w-auto md:col-span-4 lg:col-span-3 flex flex-col gap-4 overflow-hidden bg-slate-950 md:bg-transparent p-4 md:p-0 transition-transform duration-300 ${
+            className={`fixed md:relative inset-y-0 left-0 z-40 w-80 md:w-auto md:col-span-4 lg:col-span-3 flex flex-col gap-4 overflow-hidden bg-white dark:bg-slate-950 md:bg-transparent p-4 md:p-0 transition-transform duration-300 ${
               isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
             }`}
           >
             <DocumentUpload />
-            <div className="flex-1 bg-slate-900/60 border border-slate-800 rounded-xl p-4 overflow-hidden flex flex-col">
+            <div className="flex-1 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-4 overflow-hidden flex flex-col shadow-sm">
               <DocumentList />
             </div>
           </aside>
