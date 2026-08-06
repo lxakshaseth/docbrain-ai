@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { FileQuestion, Home } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
+
+
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-6 text-center">
@@ -14,11 +16,13 @@ export default function NotFound() {
       <p className="text-sm text-slate-400 max-w-md mb-6">
         The requested URL page does not exist or has been moved.
       </p>
-      <Link href="/">
-        <Button variant="gradient" className="flex items-center gap-2">
-          <Home className="w-4 h-4" /> Return to Dashboard
-        </Button>
+      <Link
+        href="/"
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm rounded-xl shadow-lg transition-all"
+      >
+        <Home className="w-4 h-4" /> Return to Dashboard
       </Link>
+
     </div>
   );
 }
