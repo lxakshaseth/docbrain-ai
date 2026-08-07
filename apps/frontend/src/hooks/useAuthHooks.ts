@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { fetchApi } from '../lib/api-client';
 import { useAuthStore } from '../store/useAuthStore';
-import { IUser } from '@pdf-chatbot/shared';
+import type { IUser } from '@pdf-chatbot/shared';
 
 export const useLoginMutation = () => {
   const { setAuth } = useAuthStore();

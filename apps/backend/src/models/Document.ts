@@ -19,6 +19,9 @@ const documentSchema = new Schema<IDocumentEntity>(
     errorReason: { type: String },
     chunkCount: { type: Number, default: 0 },
     vectorCollectionId: { type: String, required: true },
+    isPublicShare: { type: Boolean, default: false },
+    shareToken: { type: String, index: true },
+    summaryData: { type: Schema.Types.Mixed },
   },
   {
     timestamps: true,

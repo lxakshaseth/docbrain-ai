@@ -31,6 +31,14 @@ export class DocumentRepository {
     );
   }
 
+  public async findByShareToken(shareToken: string): Promise<IDocumentEntity | null> {
+    return DocumentModel.findOne({ shareToken, isPublicShare: true });
+  }
+
+  public async update(id: string, updateData: Partial<IDocumentEntity>): Promise<IDocumentEntity | null> {
+    return DocumentModel.findByIdAndUpdate(id, updateData, { new: true });
+  }
+
   public async deleteByIdAndUser(id: string, userId: string): Promise<boolean> {
     const res = await DocumentModel.deleteOne({ _id: id, userId });
     return res.deletedCount > 0;

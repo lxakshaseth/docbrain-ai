@@ -6,7 +6,7 @@ import { useDocumentStore } from '../../store/useDocumentStore';
 import { useConversationsQuery } from '../../hooks/useChatHooks';
 import { useDocumentsQuery } from '../../hooks/useDocumentHooks';
 import { MessageSquare, Clock } from 'lucide-react';
-import { IConversation } from '@pdf-chatbot/shared';
+import type { IConversation } from '@pdf-chatbot/shared';
 
 export const ConversationList: React.FC = () => {
   const { activeConversation, setActiveConversation } = useChatStore();

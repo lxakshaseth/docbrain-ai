@@ -1,0 +1,41 @@
+services:
+  # Python AI Microservice (FastAPI)
+  - type: web
+    name: pdf-ai-service
+    env: python
+    region: oregon
+    buildCommand: cd apps/ai-service && pip install -r requirements.txt
+    startCommand: cd apps/ai-service && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
+
+  # Node.js Backend (Express)
+  - type: web
+    name: pdf-backend
+    env: node
+    region: oregon
+    buildCommand: npm install && npm run build:shared && npm run build:backend
+    startCommand: cd apps/backend && npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AI_SERVICE_URL
+        fromService:
+          type: web
+          name: pdf-ai-service
+          property: hostport

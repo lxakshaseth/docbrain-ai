@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && npm run build:shared && cd apps/frontend && next build",
+  "outputDirectory": ".next"
+}

@@ -1,7 +1,9 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.logger import logger
 from app.core.exceptions import AIServiceException
@@ -20,6 +22,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+os.makedirs("public/audio", exist_ok=True)
+app.mount("/public", StaticFiles(directory="public"), name="public")
 
 app.add_middleware(
     CORSMiddleware,

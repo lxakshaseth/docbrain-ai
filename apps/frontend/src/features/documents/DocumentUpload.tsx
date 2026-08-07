@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle, AlertCircle, Loader2, FileUp } from 'lucide-react';
 import { useDocumentStore } from '../../store/useDocumentStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { IDocument } from '@pdf-chatbot/shared';
+import type { IDocument } from '@pdf-chatbot/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 

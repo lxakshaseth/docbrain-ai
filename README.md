@@ -176,3 +176,15 @@ Interactive Swagger OpenAPI UI documentation is served on:
 - Node Backend Health: `GET http://localhost:5000/health`
 - Redis Connection Health: `GET http://localhost:5000/health/redis`
 - Python AI Service Health: `GET http://localhost:8001/api/v1/health`
+
+---
+
+## 🚀 Cloud Deployment
+
+See [DEPLOYMENT.md](file:///c:/Users/lxaks/OneDrive/Desktop/intern/DEPLOYMENT.md) for step-by-step instructions on deploying:
+- **Frontend** on [Vercel](https://vercel.com) using `apps/frontend/vercel.json`.
+- **Node Backend & Python AI Service** on [Render](https://render.com) using [`render.yaml`](file:///c:/Users/lxaks/OneDrive/Desktop/intern/render.yaml) (1-click Blueprint).
+- **Database** on [MongoDB Atlas Free Tier](https://www.mongodb.com/cloud/atlas).
+- **Cache & Pub/Sub** on [Upstash Redis Free Tier](https://upstash.com).
+- **Docker Containers**: `apps/backend/Dockerfile` and `apps/ai-service/Dockerfile`.
+

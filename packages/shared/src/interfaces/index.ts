@@ -13,6 +13,62 @@ export interface IUser {
 
 export type DocumentStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
+export interface IMindNode {
+  id: string;
+  label: string;
+  category?: string;
+}
+
+export interface IMindEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export interface IDocumentSummary {
+  executiveSummary: string;
+  keyTakeaways: string[];
+  entities: string[];
+  mindMap: {
+    nodes: IMindNode[];
+    edges: IMindEdge[];
+  };
+}
+
+export interface IQuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswerIndex: number;
+  explanation: string;
+}
+
+export interface IFlashcard {
+  id: string;
+  front: string;
+  back: string;
+  topic?: string;
+}
+
+export interface IStudySet {
+  documentId: string;
+  quizzes: IQuizQuestion[];
+  flashcards: IFlashcard[];
+  audioUrl?: string;
+}
+
+export interface IComparisonMatrixRow {
+  feature: string;
+  [docId: string]: string;
+}
+
+export interface IComparisonResult {
+  summary: string;
+  headers: { docId: string; title: string }[];
+  rows: IComparisonMatrixRow[];
+  markdownMatrix: string;
+}
+
 export interface IDocument {
   id: string;
   userId: string;
@@ -25,6 +81,9 @@ export interface IDocument {
   errorReason?: string;
   chunkCount: number;
   vectorCollectionId: string;
+  isPublicShare?: boolean;
+  shareToken?: string;
+  summaryData?: IDocumentSummary;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,6 +93,8 @@ export interface IConversation {
   userId: string;
   documentId: string;
   title: string;
+  isPublicShare?: boolean;
+  shareToken?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IDocument } from '@pdf-chatbot/shared';
+import type { IDocument } from '@pdf-chatbot/shared';
 
 interface DocumentState {
   documents: IDocument[];

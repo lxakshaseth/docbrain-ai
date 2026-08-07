@@ -43,3 +43,15 @@ def get_chroma_client():
     except Exception as local_err:
         logger.error(f"Failed to initialize local persistent ChromaDB client: {local_err}")
         return None
+
+def get_collection_documents(collection_name: str) -> dict:
+    client = get_chroma_client()
+    if not client:
+        return {}
+    try:
+        col = client.get_collection(name=collection_name)
+        return col.get()
+    except Exception as e:
+        logger.error(f"Error fetching collection {collection_name}: {e}")
+        return {}
+

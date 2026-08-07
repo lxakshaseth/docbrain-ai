@@ -6,11 +6,23 @@ import { useDocumentStore } from '../../store/useDocumentStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useConversationsQuery, useMessagesQuery, useSendMessageMutation } from '../../hooks/useChatHooks';
 import { MessageItem } from './MessageItem';
-import { Send, Plus, Loader2, Sparkles, FileText, ArrowUp, Zap, HelpCircle } from 'lucide-react';
-import { IMessage } from '@pdf-chatbot/shared';
+import { Send, Plus, Loader2, Sparkles, FileText, ArrowUp, Zap, Eye, Download, Brain, GraduationCap, Share2 } from 'lucide-react';
+import type { IMessage, IDocument } from '@pdf-chatbot/shared';
 import { useQueryClient } from '@tanstack/react-query';
 
-export const ChatBox: React.FC = () => {
+interface ChatBoxProps {
+  onOpenPdfViewer?: (page?: number) => void;
+  onOpenSummary?: (doc: IDocument) => void;
+  onOpenStudy?: (doc: IDocument) => void;
+  onOpenShare?: (doc: IDocument) => void;
+}
+
+export const ChatBox: React.FC<ChatBoxProps> = ({
+  onOpenPdfViewer,
+  onOpenSummary,
+  onOpenStudy,
+  onOpenShare,
+}) => {
   const {
     activeConversation,
     setActiveConversation,
@@ -39,20 +51,17 @@ export const ChatBox: React.FC = () => {
     }
   }, [fetchedMessages]);
 
-  // Clear optimistic state only when document changes
   useEffect(() => {
     setOptimisticMessages([]);
     setIsStreaming(false);
   }, [activeDocument?.id]);
 
-  // Merge server messages with local optimistic messages
   const displayMessages: IMessage[] = [
     ...fetchedMessages,
     ...optimisticMessages.filter(
       (m) => !fetchedMessages.some((f) => f.content === m.content && f.sender === m.sender)
     ),
   ];
-
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -61,6 +70,25 @@ export const ChatBox: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [displayMessages, isStreaming, scrollToBottom]);
+
+  const handleCitationClick = (pageNumber: number) => {
+    if (onOpenPdfViewer) onOpenPdfViewer(pageNumber);
+  };
+
+  const handleExportChat = () => {
+    if (!displayMessages.length) return;
+    const mdContent = `# Chat Transcript: ${activeDocument?.title || 'DocBrain AI'}\n\n` +
+      displayMessages.map(m => `### ${m.sender === 'user' ? 'User' : 'Assistant'}\n${m.content}\n`).join('\n---\n');
+    
+    const blob = new Blob([mdContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Chat_${activeDocument?.title.replace(/\s+/g, '_') || 'Transcript'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   const handleSendMessageText = async (textToSend: string) => {
     if (!textToSend.trim() || isStreaming) return;
@@ -133,38 +161,83 @@ export const ChatBox: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-950 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs transition-colors duration-250">
-      {/* Clean Top Navbar */}
-      <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shrink-0">
+      {/* Workspace Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-sm">
             <FileText className="w-4 h-4" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+            <h2 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
               {activeDocument ? activeDocument.title : 'No PDF Selected'}
             </h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
               {activeDocument
                 ? `${activeDocument.chunkCount || 'Indexing'} chunks ready for AI grounding`
-                : 'Select or upload a PDF document from sidebar'}
+                : 'Select or upload a document from sidebar'}
             </p>
           </div>
         </div>
 
+        {/* Feature Tools Toolbar */}
         {activeDocument && (
-          <button
-            onClick={() => {
-              setActiveConversation(null);
-              setOptimisticMessages([]);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-medium rounded-xl transition-all active:scale-[0.98]"
-          >
-            <Plus className="w-3.5 h-3.5 text-blue-500" /> New Chat
-          </button>
+          <div className="flex items-center flex-wrap gap-1.5">
+            <button
+              onClick={() => onOpenPdfViewer && onOpenPdfViewer(1)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 dark:text-blue-400 border border-blue-500/30 text-xs font-semibold rounded-xl transition-all"
+              title="Open Interactive PDF Reader"
+            >
+              <Eye className="w-3.5 h-3.5" /> PDF Reader
+            </button>
+
+            <button
+              onClick={() => onOpenSummary && onOpenSummary(activeDocument)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 border border-indigo-500/30 text-xs font-semibold rounded-xl transition-all"
+              title="AI Executive Summary & Mind Map"
+            >
+              <Brain className="w-3.5 h-3.5" /> Summary & Map
+            </button>
+
+            <button
+              onClick={() => onOpenStudy && onOpenStudy(activeDocument)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 dark:text-purple-400 border border-purple-500/30 text-xs font-semibold rounded-xl transition-all"
+              title="Quiz & Flashcard Study Hub"
+            >
+              <GraduationCap className="w-3.5 h-3.5" /> Study Hub
+            </button>
+
+            <button
+              onClick={() => onOpenShare && onOpenShare(activeDocument)}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold rounded-xl transition-all"
+              title="Public Share Link"
+            >
+              <Share2 className="w-3.5 h-3.5" /> Share
+            </button>
+
+            {displayMessages.length > 0 && (
+              <button
+                onClick={handleExportChat}
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-xl transition-all"
+                title="Export Chat as Markdown"
+              >
+                <Download className="w-3.5 h-3.5" /> Export MD
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                setActiveConversation(null);
+                setOptimisticMessages([]);
+              }}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-xl transition-all"
+            >
+              <Plus className="w-3.5 h-3.5 text-blue-500" /> New Chat
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Main Reading Canvas */}
+      {/* Main Canvas */}
       <div className="flex-1 overflow-y-auto px-4 py-6 md:px-10">
         <div className="max-w-7xl mx-auto space-y-4">
           {!activeDocument ? (
@@ -212,6 +285,7 @@ export const ChatBox: React.FC = () => {
                 key={msg.id}
                 message={msg}
                 onSelectSuggestedQuestion={(question) => handleSendMessageText(question)}
+                onCitationClick={handleCitationClick}
               />
             ))
           )}
@@ -273,4 +347,3 @@ export const ChatBox: React.FC = () => {
     </div>
   );
 };
-

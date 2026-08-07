@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useDocumentStore } from '../store/useDocumentStore';
 import { AuthModal } from '../features/auth/AuthModal';
 import { DocumentUpload } from '../features/documents/DocumentUpload';
 import { DocumentList } from '../features/documents/DocumentList';
@@ -9,19 +10,36 @@ import { ConversationList } from '../features/chat/ConversationList';
 import { ChatBox } from '../features/chat/ChatBox';
 import { fetchApi } from '../lib/api-client';
 import { Cpu, LogIn, Menu, X, Sparkles, Layers, Clock, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { IUser } from '@pdf-chatbot/shared';
+import type { IUser, IDocument } from '@pdf-chatbot/shared';
 import { UserProfileDropdown } from '../features/auth/UserProfileDropdown';
 import { GuestLandingHero } from '../features/auth/GuestLandingHero';
 import { useThemeStore } from '../store/useThemeStore';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 
+// Feature Modals mounted at root level
+import { PdfViewerModal } from '../components/PdfViewerModal';
+import { DocumentSummaryModal } from '../features/documents/DocumentSummaryModal';
+import { StudyHubModal } from '../features/study/StudyHubModal';
+import { ShareModal } from '../features/documents/ShareModal';
+import { ComparisonModal } from '../features/documents/ComparisonModal';
+
 export default function Home() {
   const { user, token, setAuth, logout, setAuthModalOpen, initAuth } = useAuthStore();
+  const { activeDocument } = useDocumentStore();
   const { initTheme } = useThemeStore();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'documents' | 'history'>('documents');
   const [mounted, setMounted] = useState(false);
+
+  // Root Modal State
+  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
+  const [pdfViewerPage, setPdfViewerPage] = useState(1);
+
+  const [summaryDoc, setSummaryDoc] = useState<IDocument | null>(null);
+  const [studyDoc, setStudyDoc] = useState<IDocument | null>(null);
+  const [shareDoc, setShareDoc] = useState<IDocument | null>(null);
+  const [compareDocIds, setCompareDocIds] = useState<string[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -53,15 +71,48 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
-      {/* Auth Modal */}
+      {/* Root Feature Modals */}
       <AuthModal />
 
+      <PdfViewerModal
+        isOpen={isPdfViewerOpen}
+        onClose={() => setIsPdfViewerOpen(false)}
+        documentId={activeDocument?.id || null}
+        documentTitle={activeDocument?.title || 'Document'}
+        initialPage={pdfViewerPage}
+      />
+
+      <DocumentSummaryModal
+        isOpen={!!summaryDoc}
+        onClose={() => setSummaryDoc(null)}
+        documentId={summaryDoc?.id || null}
+        documentTitle={summaryDoc?.title || ''}
+      />
+
+      <StudyHubModal
+        isOpen={!!studyDoc}
+        onClose={() => setStudyDoc(null)}
+        documentId={studyDoc?.id || null}
+        documentTitle={studyDoc?.title || ''}
+      />
+
+      <ShareModal
+        isOpen={!!shareDoc}
+        onClose={() => setShareDoc(null)}
+        document={shareDoc}
+      />
+
+      <ComparisonModal
+        isOpen={compareDocIds.length >= 2}
+        onClose={() => setCompareDocIds([])}
+        selectedDocIds={compareDocIds}
+      />
+
       {/* Main Header Bar */}
-      <header className="relative z-50 h-14 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-4 md:px-6 flex items-center justify-between shrink-0 transition-colors duration-250" suppressHydrationWarning>
+      <header className="relative z-30 h-14 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-4 md:px-6 flex items-center justify-between shrink-0 transition-colors duration-250" suppressHydrationWarning>
         <div className="flex items-center gap-3">
           {user && (
             <>
-              {/* Mobile Drawer Trigger */}
               <button
                 onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                 className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900"
@@ -71,7 +122,6 @@ export default function Home() {
                 {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
 
-              {/* Desktop Sidebar Toggle */}
               <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                 className="hidden md:flex p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
@@ -124,16 +174,14 @@ export default function Home() {
       {/* Main Workspace View */}
       {user ? (
         <div className="flex-1 flex p-3 gap-3 overflow-hidden relative">
-          {/* Left Sidebar (Collapsible Desktop & Mobile Drawer) */}
+          {/* Left Sidebar */}
           <aside
-            className={`fixed md:relative inset-y-0 left-0 z-40 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-3 shadow-xs transition-all duration-300 ${
+            className={`fixed md:relative inset-y-0 left-0 z-20 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-3 shadow-xs transition-all duration-300 ${
               isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
             } ${isSidebarCollapsed ? 'md:hidden' : 'md:flex'}`}
           >
-            {/* Primary Action Button: Compact PDF Upload */}
             <DocumentUpload compact />
 
-            {/* Segmented Control Tabs */}
             <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs font-medium shrink-0">
               <button
                 onClick={() => setActiveTab('documents')}
@@ -157,10 +205,14 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Tab Body */}
             <div className="flex-1 overflow-hidden">
               {activeTab === 'documents' ? (
-                <DocumentList />
+                <DocumentList
+                  onOpenSummary={(doc) => setSummaryDoc(doc)}
+                  onOpenStudy={(doc) => setStudyDoc(doc)}
+                  onOpenShare={(doc) => setShareDoc(doc)}
+                  onOpenCompare={(ids) => setCompareDocIds(ids)}
+                />
               ) : (
                 <ConversationList />
               )}
@@ -171,13 +223,21 @@ export default function Home() {
           {isMobileSidebarOpen && (
             <div
               onClick={() => setIsMobileSidebarOpen(false)}
-              className="fixed inset-0 z-30 bg-black/50 backdrop-blur-xs md:hidden"
+              className="fixed inset-0 z-10 bg-black/50 backdrop-blur-xs md:hidden"
             />
           )}
 
           {/* Main Content Area (Chat Canvas) */}
           <main className="flex-1 h-full overflow-hidden min-w-0">
-            <ChatBox />
+            <ChatBox
+              onOpenPdfViewer={(page) => {
+                setPdfViewerPage(page || 1);
+                setIsPdfViewerOpen(true);
+              }}
+              onOpenSummary={(doc) => setSummaryDoc(doc)}
+              onOpenStudy={(doc) => setStudyDoc(doc)}
+              onOpenShare={(doc) => setShareDoc(doc)}
+            />
           </main>
         </div>
       ) : (
@@ -186,4 +246,3 @@ export default function Home() {
     </div>
   );
 }
-

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IConversation, IMessage } from '@pdf-chatbot/shared';
+import type { IConversation, IMessage } from '@pdf-chatbot/shared';
 
 interface ChatState {
   conversations: IConversation[];
