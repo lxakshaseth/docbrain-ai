@@ -104,7 +104,7 @@ const startServer = async () => {
       logger.info(`Swagger API Docs available at http://localhost:${config.port}/api-docs`);
     });
   } catch (error: any) {
-    logger.error('Failed to start Node Backend:', error.message || error);
+    logger.error('Failed to start Node Backend:', error.stack || error.message || error);
     process.exit(1);
   }
 };
