@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchApi } from '../lib/api-client';
 import { useAuthStore } from '../store/useAuthStore';
-import { IDocument } from '@pdf-chatbot/shared';
+import type { IDocument } from '@pdf-chatbot/shared';
 
 export const useDocumentsQuery = () => {
   const { token } = useAuthStore();

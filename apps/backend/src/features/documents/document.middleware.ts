@@ -25,10 +25,18 @@ export const uploadPdf = multer({
     fileSize: config.upload.maxSizeMb * 1024 * 1024,
   },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || file.originalname.endsWith('.pdf')) {
+    const allowedMimeTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+      'text/markdown',
+    ];
+    const allowedExtensions = ['.pdf', '.docx', '.txt', '.md'];
+    const hasValidExt = allowedExtensions.some(ext => file.originalname.toLowerCase().endsWith(ext));
+    if (allowedMimeTypes.includes(file.mimetype) || hasValidExt) {
       cb(null, true);
     } else {
-      cb(new AppError('Only PDF files are allowed', 400));
+      cb(new AppError('Only PDF, DOCX, TXT, and Markdown (.md) files are allowed', 400));
     }
   },
 });

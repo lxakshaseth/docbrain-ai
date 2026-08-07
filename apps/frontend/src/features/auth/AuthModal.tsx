@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useLoginMutation, useRegisterMutation } from '../../hooks/useAuthHooks';
 import { LogIn, UserPlus, X, ShieldCheck } from 'lucide-react';
-import { UserRole } from '@pdf-chatbot/shared';
+import type { UserRole } from '@pdf-chatbot/shared';
 
 export const AuthModal: React.FC = () => {
   const { isAuthModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode } = useAuthStore();

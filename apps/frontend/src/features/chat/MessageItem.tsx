@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { IMessage } from '@pdf-chatbot/shared';
+import type { IMessage } from '@pdf-chatbot/shared';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
 import { Sparkles, User, BookOpen, ChevronDown, ChevronUp, ArrowRight, CornerDownRight } from 'lucide-react';
 
@@ -9,12 +9,14 @@ interface MessageItemProps {
   message: IMessage;
   isStreaming?: boolean;
   onSelectSuggestedQuestion?: (question: string) => void;
+  onCitationClick?: (pageNumber: number) => void;
 }
 
 export const MessageItem: React.FC<MessageItemProps> = ({
   message,
   isStreaming = false,
   onSelectSuggestedQuestion,
+  onCitationClick,
 }) => {
   const isUser = message.sender === 'user';
   const [showSources, setShowSources] = useState(false);
@@ -61,7 +63,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400 transition-colors"
             >
               <BookOpen className="w-3 h-3 text-blue-500" />
-              <span>{message.sources.length} Grounded {message.sources.length === 1 ? 'Source' : 'Sources'}</span>
+              <span>{message.sources.length} Grounded {message.sources.length === 1 ? 'Source' : 'Sources'} (Click to View PDF)</span>
               {showSources ? <ChevronUp className="w-3 h-3 ml-0.5" /> : <ChevronDown className="w-3 h-3 ml-0.5" />}
             </button>
 
@@ -70,10 +72,11 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 {message.sources.map((source, index) => (
                   <div
                     key={index}
-                    className="bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 rounded-xl p-2.5 text-xs transition-colors"
+                    onClick={() => onCitationClick && onCitationClick(source.pageNumber || 1)}
+                    className="bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 hover:border-blue-500/50 rounded-xl p-2.5 text-xs cursor-pointer transition-all hover:scale-[1.01]"
                   >
                     <div className="flex items-center justify-between text-[10px] text-blue-600 dark:text-blue-400 font-semibold mb-1">
-                      <span>Page {source.pageNumber}</span>
+                      <span>Jump to Page {source.pageNumber || 1} ↗</span>
                       <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500">{(source.score * 100).toFixed(0)}% match</span>
                     </div>
                     <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 italic leading-relaxed">

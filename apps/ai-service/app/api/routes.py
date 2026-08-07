@@ -97,3 +97,49 @@ def health_status():
         "chroma_connected": chroma_healthy,
         "environment": settings.environment
     }
+
+@router.post("/summary")
+def generate_document_summary(payload: dict):
+    collection_name = payload.get("collection_name") or payload.get("vector_collection_id")
+    file_url = payload.get("file_url")
+    title = payload.get("title")
+    if not collection_name:
+        raise HTTPException(status_code=400, detail="vector_collection_id is required")
+    from app.services.summary_service import SummaryService
+    summary = SummaryService.generate_summary(collection_name, file_url=file_url, title=title)
+    return {"success": True, "data": summary}
+
+@router.post("/study/quiz-and-flashcards")
+def generate_study_set(payload: dict):
+    collection_name = payload.get("collection_name") or payload.get("vector_collection_id")
+    file_url = payload.get("file_url")
+    title = payload.get("title")
+    if not collection_name:
+        raise HTTPException(status_code=400, detail="vector_collection_id is required")
+    from app.services.study_service import StudyService
+    study_set = StudyService.generate_quiz_and_flashcards(collection_name, file_url=file_url, title=title)
+    return {"success": True, "data": study_set}
+
+@router.post("/study/audio-overview")
+def generate_audio_overview(payload: dict):
+    text = payload.get("text", "")
+    document_id = payload.get("document_id", "doc")
+    if not text:
+        raise HTTPException(status_code=400, detail="text is required")
+    import os
+    from app.services.study_service import StudyService
+    output_dir = os.path.join(os.getcwd(), "public", "audio")
+    output_filename = f"audio_{document_id}.mp3"
+    output_path = os.path.join(output_dir, output_filename)
+    audio_path = StudyService.generate_audio_overview(text, output_path)
+    return {"success": True, "data": {"audioUrl": f"http://127.0.0.1:8001/public/audio/{output_filename}", "path": audio_path}}
+
+@router.post("/compare")
+def compare_documents(payload: dict):
+    documents = payload.get("documents", [])
+    if not documents or len(documents) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 documents are required for comparison")
+    from app.services.comparison_service import ComparisonService
+    comparison = ComparisonService.compare_documents(documents)
+    return {"success": True, "data": comparison}
+

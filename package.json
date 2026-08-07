@@ -10,7 +10,8 @@
   "scripts": {
     "dev:backend": "npm run dev --workspace=apps/backend",
     "dev:frontend": "npm run dev --workspace=apps/frontend",
-    "dev:ai": "cd apps/ai-service && uvicorn main:app --reload --port 8000",
+    "dev:ai": "cd apps/ai-service && .\\venv\\Scripts\\uvicorn main:app --reload --port 8001",
+
     "build:shared": "npm run build --workspace=packages/shared",
     "build:backend": "npm run build --workspace=apps/backend",
     "build:frontend": "npm run build --workspace=apps/frontend",

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { IUser } from '@pdf-chatbot/shared';
+import type { IUser } from '@pdf-chatbot/shared';
 
 interface AuthState {
   user: IUser | null;

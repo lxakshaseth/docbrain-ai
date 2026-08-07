@@ -38,5 +38,6 @@ export const config = {
     maxSizeMb: parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10),
     uploadDir: process.env.UPLOAD_DIR || './uploads',
   },
+  aiServiceUrl: process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001',
 };
 

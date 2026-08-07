@@ -1,5 +1,6 @@
 import path from 'path';
 import crypto from 'crypto';
+import { config } from '../../config/env.js';
 import { documentRepository } from '../../repositories/document.repository.js';
 import { AppError } from '../../core/appError.js';
 import { redisPublisher, isRedisConnected } from '../../redis/redisClient.js';
@@ -108,5 +109,119 @@ export class DocumentService {
     await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));
 
     return updatedDoc!.toJSON() as unknown as IDocument;
+  }
+
+  private static async postToAiService(endpoint: string, payload: any): Promise<any> {
+    const urls = [
+      `${config.aiServiceUrl}${endpoint}`,
+      `http://127.0.0.1:8001${endpoint}`,
+      `http://localhost:8001${endpoint}`,
+      `http://127.0.0.1:8000${endpoint}`,
+    ];
+    const uniqueUrls = Array.from(new Set(urls));
+
+    let lastError = 'AI Microservice is unreachable';
+    for (const targetUrl of uniqueUrls) {
+      try {
+        const response = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            return data.data;
+          }
+        }
+      } catch (err: any) {
+        lastError = err.message || 'Connection refused';
+      }
+    }
+    throw new AppError(`AI Service Unavailable (${lastError}). Please ensure python AI microservice is running (uvicorn main:app --port 8001).`, 503);
+  }
+
+  public static async getSummary(userId: string, documentId: string) {
+    const doc = await this.getDocumentById(userId, documentId);
+    if (doc.summaryData) {
+      return doc.summaryData;
+    }
+
+    const absPath = doc.fileUrl ? path.resolve(doc.fileUrl) : undefined;
+    const data = await this.postToAiService('/api/v1/summary', {
+      vector_collection_id: doc.vectorCollectionId,
+      file_url: absPath,
+      title: doc.title,
+    });
+    await documentRepository.update(documentId, { summaryData: data });
+    return data;
+  }
+
+  public static async getStudySet(userId: string, documentId: string) {
+    const doc = await this.getDocumentById(userId, documentId);
+    const absPath = doc.fileUrl ? path.resolve(doc.fileUrl) : undefined;
+    const data = await this.postToAiService('/api/v1/study/quiz-and-flashcards', {
+      vector_collection_id: doc.vectorCollectionId,
+      file_url: absPath,
+      title: doc.title,
+    });
+    return { documentId, ...data };
+  }
+
+  public static async generateAudioOverview(userId: string, documentId: string) {
+    const doc = await this.getDocumentById(userId, documentId);
+    let textToSpeak = `${doc.title} summary overview.`;
+    try {
+      const summary = await this.getSummary(userId, documentId);
+      if (summary?.executiveSummary) textToSpeak = summary.executiveSummary;
+    } catch (_e) {
+      // fallback text
+    }
+
+    const data = await this.postToAiService('/api/v1/study/audio-overview', { text: textToSpeak, document_id: documentId });
+    return data;
+  }
+
+  public static async togglePublicShare(userId: string, documentId: string) {
+    const doc = await this.getDocumentById(userId, documentId);
+    const isPublic = !doc.isPublicShare;
+    const shareToken = isPublic ? doc.shareToken || crypto.randomBytes(16).toString('hex') : undefined;
+
+    const updated = await documentRepository.update(documentId, {
+      isPublicShare: isPublic,
+      shareToken,
+    });
+    return updated!.toJSON() as unknown as IDocument;
+  }
+
+  public static async getPublicDocument(shareToken: string) {
+    const doc = await documentRepository.findByShareToken(shareToken);
+    if (!doc) {
+      throw new AppError('Shared document not found or link has expired', 404);
+    }
+    return doc.toJSON() as unknown as IDocument;
+  }
+
+  public static async compareDocuments(userId: string, documentIds: string[]) {
+    const userDocs = await this.getUserDocuments(userId);
+    const selected = userDocs.filter(d => documentIds.includes(d.id));
+
+    if (selected.length < 2) {
+      throw new AppError('Select at least 2 valid documents to compare', 400);
+    }
+
+    const data = await this.postToAiService('/api/v1/compare', { documents: selected });
+    return data;
+  }
+
+  public static async publicChat(shareToken: string, query: string, conversationId?: string) {
+    const doc = await this.getPublicDocument(shareToken);
+    const data = await this.postToAiService('/api/v1/query', {
+      query,
+      collection_name: doc.vectorCollectionId,
+      conversation_id: conversationId || `public_${shareToken}`,
+      top_k: 4,
+    });
+    return data;
   }
 }
