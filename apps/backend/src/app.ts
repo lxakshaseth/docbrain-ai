@@ -90,22 +90,27 @@ let server: ReturnType<typeof app.listen> | null = null;
 
 // Server Initialization
 const startServer = async () => {
+  // Bind HTTP server immediately so cloud platforms (Render) detect open port instantly
+  server = app.listen(config.port, () => {
+    logger.info(`Node Backend running on port ${config.port} in ${config.env} mode`);
+    logger.info(`Swagger API Docs available at http://localhost:${config.port}/api-docs`);
+  });
+
+  // Connect to MongoDB
   try {
-    // Database Connection
     await mongoose.connect(config.mongoUri);
     logger.info('Connected to MongoDB successfully');
+  } catch (error: any) {
+    logger.error('Failed to connect to MongoDB:', error.message || error);
+    logger.warn('Please ensure MONGODB_URI is set in your Render environment variables.');
+  }
 
-    // Redis Pub/Sub Connection & Event Listeners
+  // Connect to Redis Pub/Sub
+  try {
     await initRedis();
     await startRedisSubscriber();
-
-    server = app.listen(config.port, () => {
-      logger.info(`Node Backend running on port ${config.port} in ${config.env} mode`);
-      logger.info(`Swagger API Docs available at http://localhost:${config.port}/api-docs`);
-    });
   } catch (error: any) {
-    logger.error('Failed to start Node Backend:', error.stack || error.message || error);
-    process.exit(1);
+    logger.warn('Redis Pub/Sub initialization notice:', error.message || error);
   }
 };
 

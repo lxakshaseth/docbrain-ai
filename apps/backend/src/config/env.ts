@@ -21,14 +21,14 @@ const defaultJwtSecret = 'your_jwt_secret_change_in_production';
 
 export const config = {
   env: process.env.NODE_ENV || 'development',
-  port: parseInt(process.env.PORT || '5000', 10),
+  port: parseInt(process.env.PORT || '10000', 10),
   mongoUri: process.env.MONGO_URI || process.env.MONGODB_URI || defaultMongoUri,
   redis: {
     url: process.env.REDIS_URL || undefined,
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     password: process.env.REDIS_PASSWORD || undefined,
-    optional: process.env.REDIS_OPTIONAL?.trim() === 'true',
+    optional: process.env.REDIS_OPTIONAL !== 'false',
   },
   jwt: {
     secret: process.env.JWT_SECRET || defaultJwtSecret,
