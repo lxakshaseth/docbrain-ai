@@ -19,10 +19,10 @@ services:
   # Node.js Backend (Express)
   - type: web
     name: pdf-backend
-    env: node
+    env: docker
     region: oregon
-    buildCommand: npm install && npm run build:shared && npm run build:backend
-    startCommand: cd apps/backend && npm run start
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
       - key: NODE_ENV
         value: production
