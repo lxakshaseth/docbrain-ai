@@ -22,7 +22,7 @@ const defaultJwtSecret = 'your_jwt_secret_change_in_production';
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
-  mongoUri: process.env.MONGO_URI || defaultMongoUri,
+  mongoUri: process.env.MONGO_URI || process.env.MONGODB_URI || defaultMongoUri,
   redis: {
     url: process.env.REDIS_URL || undefined,
     host: process.env.REDIS_HOST || 'localhost',
