@@ -51,13 +51,14 @@ app.use('/api/v1/documents', documentRoutes);
 app.use('/api/v1/chat', chatRoutes);
 
 // Root Endpoint
-app.get('/api/v1', (_req: Request, res: Response) => {
+app.get(['/', '/api/v1'], (_req: Request, res: Response) => {
   return ApiResult.success(
     res,
     {
       version: '1.0.0',
       description: 'PDF Knowledge Base AI Chatbot Backend API',
       swaggerDocs: '/api-docs',
+      health: '/health',
       endpoints: [
         '/api/v1/auth/login',
         '/api/v1/documents/upload',
@@ -69,7 +70,7 @@ app.get('/api/v1', (_req: Request, res: Response) => {
         '/health/redis',
       ],
     },
-    'API v1 Root'
+    'PDF Knowledge Base AI Chatbot Backend API is Live'
   );
 });
 
