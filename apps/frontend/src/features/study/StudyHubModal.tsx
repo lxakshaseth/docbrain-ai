@@ -326,7 +326,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                     <div className="w-full max-w-md space-y-4">
                       <div className="flex items-center justify-between text-xs text-slate-400">
                         <span className="font-medium text-purple-400">
-                          {studySet.flashcards[currentCardIndex]?.category || 'Card'}
+                          {studySet.flashcards[currentCardIndex]?.topic || (studySet.flashcards[currentCardIndex] as any)?.category || 'Card'}
                         </span>
                         <button
                           onClick={exportAnkiCsv}

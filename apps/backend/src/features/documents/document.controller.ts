@@ -84,7 +84,7 @@ export class DocumentController {
     }
 
     try {
-      const aiServiceUrl = config.aiServiceUrls[0] || 'http://127.0.0.1:8001';
+      const aiServiceUrl = config.aiServiceUrl || 'http://127.0.0.1:8001';
       const audioRes = await fetch(`${aiServiceUrl}/public/audio/audio_${id}.mp3`);
       if (audioRes.ok && audioRes.body) {
         res.setHeader('Content-Type', 'audio/mpeg');
