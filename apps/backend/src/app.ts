@@ -45,6 +45,30 @@ app.get('/health/redis', async (_req: Request, res: Response) => {
   }
 });
 
+// Disable Mongoose query buffering to prevent 10s timeout hangs when database is unreachable
+mongoose.set('bufferCommands', false);
+
+// Database Connection Check Middleware for API routes
+app.use('/api/v1', async (_req: Request, res: Response, next: NextFunction) => {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      logger.info(`Database not connected (state: ${mongoose.connection.readyState}). Connecting to MongoDB...`);
+      await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 4000 });
+      next();
+    } catch (err: any) {
+      logger.error('Database connection error:', err.message || err);
+      return ApiResult.error(
+        res,
+        'Database connection unavailable. Please ensure MONGODB_URI is configured in Render environment variables and 0.0.0.0/0 is allowed in MongoDB Atlas Network Access.',
+        503,
+        'DATABASE_DISCONNECTED'
+      );
+    }
+  } else {
+    next();
+  }
+});
+
 // Feature API v1 Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/documents', documentRoutes);
