@@ -40,15 +40,26 @@ export class DocumentService {
       vectorCollectionId,
     };
 
-    if (!isRedisConnected()) {
-      throw new AppError(
-        'Message broker (Redis) is currently unavailable. Document ingestion task could not be queued.',
-        503
-      );
+    // Ingestion task dispatch: Redis Pub/Sub if available, or direct HTTP AI service fallback
+    if (isRedisConnected()) {
+      await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));
+    } else {
+      // Async HTTP fallback to Python AI Service
+      (async () => {
+        try {
+          const aiResult = await DocumentService.postToAiService('/api/v1/ingest', {
+            document_id: doc.id,
+            file_path: path.resolve(file.path),
+            collection_name: vectorCollectionId,
+          });
+          const chunkCount = aiResult?.chunk_count || aiResult?.chunks_ingested || 1;
+          await documentRepository.updateStatus(doc.id, 'completed', chunkCount);
+        } catch (err: any) {
+          console.error(`HTTP ingestion fallback error for doc ${doc.id}:`, err.message || err);
+          await documentRepository.updateStatus(doc.id, 'failed', 0);
+        }
+      })();
     }
-
-    // Publish ingestion task to Redis Pub/Sub channel for Python AI Service
-    await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));
 
     return doc.toJSON() as unknown as IDocument;
   }
@@ -98,15 +109,25 @@ export class DocumentService {
       vectorCollectionId: doc.vectorCollectionId,
     };
 
-    if (!isRedisConnected()) {
-      throw new AppError(
-        'Message broker (Redis) is currently unavailable. Document reprocess task could not be queued.',
-        503
-      );
+    if (isRedisConnected()) {
+      await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));
+    } else {
+      // Async HTTP reprocess fallback to Python AI Service
+      (async () => {
+        try {
+          const aiResult = await DocumentService.postToAiService('/api/v1/ingest', {
+            document_id: doc.id,
+            file_path: path.resolve(doc.fileUrl),
+            collection_name: doc.vectorCollectionId,
+          });
+          const chunkCount = aiResult?.chunk_count || aiResult?.chunks_ingested || 1;
+          await documentRepository.updateStatus(doc.id, 'completed', chunkCount);
+        } catch (err: any) {
+          console.error(`HTTP reprocess fallback error for doc ${doc.id}:`, err.message || err);
+          await documentRepository.updateStatus(doc.id, 'failed', 0);
+        }
+      })();
     }
-
-    // Re-publish ingestion task to Redis
-    await redisPublisher.publish(REDIS_CHANNELS.DOC_INGEST_REQUEST, JSON.stringify(payload));
 
     return updatedDoc!.toJSON() as unknown as IDocument;
   }

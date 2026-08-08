@@ -103,15 +103,44 @@ export class ChatService {
       vectorCollectionId: doc.vectorCollectionId,
     };
 
-    if (!isRedisConnected()) {
-      throw new AppError(
-        'Message broker (Redis) is currently unavailable. Chat request could not be queued.',
-        503
-      );
+    if (isRedisConnected()) {
+      // Dispatch RAG task to Redis Pub/Sub
+      await redisPublisher.publish(REDIS_CHANNELS.CHAT_STREAM_REQUEST, JSON.stringify(payload));
+    } else {
+      // HTTP Fallback to AI Service /api/v1/query
+      (async () => {
+        try {
+          const aiUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001';
+          const resp = await fetch(`${aiUrl}/api/v1/query`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              query,
+              collection_name: doc.vectorCollectionId,
+              conversation_id: conv!.id,
+              top_k: 4,
+            }),
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            const answerText = data.answer || data.content || 'AI response received.';
+            await messageRepository.create({
+              conversationId: conv!.id,
+              sender: 'assistant',
+              content: answerText,
+              sources: data.sources || [],
+            });
+          }
+        } catch (err: any) {
+          console.error('HTTP chat query fallback failed:', err.message || err);
+          await messageRepository.create({
+            conversationId: conv!.id,
+            sender: 'assistant',
+            content: 'Sorry, the AI service is currently unavailable. Please ensure the Python AI service is running.',
+          });
+        }
+      })();
     }
-
-    // Dispatch RAG task to Redis Pub/Sub
-    await redisPublisher.publish(REDIS_CHANNELS.CHAT_STREAM_REQUEST, JSON.stringify(payload));
 
     return {
       userMessage: userMsgDoc.toJSON() as unknown as IMessage,
