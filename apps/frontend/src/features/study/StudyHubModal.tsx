@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, GraduationCap, HelpCircle, Layers, Volume2, Download, CheckCircle2, XCircle, RotateCcw, Loader2, Play } from 'lucide-react';
-import { fetchApi } from '../../lib/api-client';
-import type { IStudySet, IQuizQuestion, IFlashcard } from '@pdf-chatbot/shared';
+import { X, GraduationCap, HelpCircle, Layers, Volume2, Download, CheckCircle2, XCircle, RotateCcw, Loader2, Play, Pause, Sparkles, FileText, AlertCircle } from 'lucide-react';
+import { fetchApi, API_BASE_URL } from '../../lib/api-client';
+import type { IStudySet } from '@pdf-chatbot/shared';
 
 interface StudyHubModalProps {
   isOpen: boolean;
@@ -31,7 +31,10 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
 
   // Audio state
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioText, setAudioText] = useState<string | null>(null);
   const [generatingAudio, setGeneratingAudio] = useState<boolean>(false);
+  const [isPlayingTts, setIsPlayingTts] = useState<boolean>(false);
+  const [audioError, setAudioError] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen && documentId) {
@@ -42,6 +45,13 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
       setCurrentCardIndex(0);
       setIsFlipped(false);
       setAudioUrl(null);
+      setAudioText(null);
+      setAudioError(false);
+
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setIsPlayingTts(false);
 
       fetchApi<IStudySet>(`/documents/${documentId}/study-set`)
         .then((res) => {
@@ -56,22 +66,62 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
         })
         .finally(() => setLoading(false));
     }
+
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, [isOpen, documentId]);
 
   if (!isOpen || !documentId) return null;
 
   const handleGenerateAudio = () => {
     setGeneratingAudio(true);
-    fetchApi<{ audioUrl: string }>(`/documents/${documentId}/audio-overview`, { method: 'POST' })
+    setAudioError(false);
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlayingTts(false);
+
+    fetchApi<{ audioUrl: string; text?: string }>(`/documents/${documentId}/audio-overview`, { method: 'POST' })
       .then((res) => {
         if (res.success && res.data) {
-          setAudioUrl(res.data.audioUrl);
+          const rawUrl = res.data.audioUrl;
+          const formattedUrl = rawUrl.startsWith('http')
+            ? rawUrl
+            : `${API_BASE_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`;
+          setAudioUrl(formattedUrl);
+          if (res.data.text) {
+            setAudioText(res.data.text);
+          }
+        } else {
+          setAudioError(true);
         }
       })
       .catch((err) => {
-        console.error(err);
+        console.error('Audio overview error:', err);
+        setAudioError(true);
       })
       .finally(() => setGeneratingAudio(false));
+  };
+
+  const handleToggleTts = () => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    if (isPlayingTts) {
+      window.speechSynthesis.cancel();
+      setIsPlayingTts(false);
+    } else {
+      const textToRead = audioText || `${documentTitle} summary overview. Comprehensive study guidelines and topics analyzed by AI.`;
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+      utterance.onend = () => setIsPlayingTts(false);
+      utterance.onerror = () => setIsPlayingTts(false);
+      setIsPlayingTts(true);
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   const exportAnkiCsv = () => {
@@ -102,7 +152,12 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              if (typeof window !== 'undefined' && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+              }
+              onClose();
+            }}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -202,96 +257,105 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                           )}
                         </div>
 
-                        <div className="space-y-2">
-                          {q.options?.map((opt, optIdx) => {
-                            let btnStyle = "bg-slate-950 hover:bg-slate-800/80 border-slate-800 text-slate-300";
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {q.options.map((opt, optIdx) => {
+                            let btnStyle = "border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800";
                             if (selectedOpt === optIdx) {
-                              btnStyle = "bg-purple-950/60 border-purple-500 text-purple-200 font-semibold";
+                              btnStyle = "border-purple-500 bg-purple-500/20 text-purple-300 font-medium";
                             }
+
                             if (submittedQuiz) {
                               if (optIdx === q.correctAnswerIndex) {
-                                btnStyle = "bg-emerald-950/80 border-emerald-500 text-emerald-200 font-semibold";
+                                btnStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-300 font-semibold";
                               } else if (selectedOpt === optIdx && !isCorrect) {
-                                btnStyle = "bg-rose-950/80 border-rose-500 text-rose-200 font-semibold";
+                                btnStyle = "border-rose-500 bg-rose-500/20 text-rose-300 line-through";
                               }
                             }
 
                             return (
                               <button
                                 key={optIdx}
-                                onClick={() => !submittedQuiz && setQuizAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
-                                className={`w-full text-left p-3 rounded-lg border text-xs transition-all flex items-center gap-2 ${btnStyle}`}
                                 disabled={submittedQuiz}
+                                onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
+                                className={`text-left px-3 py-2 rounded-lg border text-xs transition-all ${btnStyle}`}
                               >
-                                <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px] shrink-0 font-mono">
-                                  {String.fromCharCode(65 + optIdx)}
-                                </span>
-                                <span>{opt}</span>
+                                <span className="font-mono mr-2 text-slate-400">{String.fromCharCode(65 + optIdx)}.</span>
+                                {opt}
                               </button>
                             );
                           })}
                         </div>
 
-                        {submittedQuiz && (
-                          <div className="p-3 bg-purple-950/20 border border-purple-900/40 rounded-lg text-xs text-purple-300">
-                            <strong>Explanation:</strong> {q.explanation}
+                        {submittedQuiz && q.explanation && (
+                          <div className="text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-400">
+                            <span className="font-semibold text-slate-300">Explanation: </span>
+                            {q.explanation}
                           </div>
                         )}
                       </div>
                     );
                   })}
 
-                  <div className="flex justify-end gap-3 pt-2">
-                    {submittedQuiz ? (
+                  <div className="flex items-center justify-between pt-2">
+                    {submittedQuiz && (
                       <button
-                        onClick={() => { setSubmittedQuiz(false); setQuizAnswers({}); }}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
+                        onClick={() => {
+                          setQuizAnswers({});
+                          setSubmittedQuiz(false);
+                        }}
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
                       >
-                        <RotateCcw className="w-4 h-4" /> Reset Quiz
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setSubmittedQuiz(true)}
-                        className="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
-                      >
-                        Submit Answers
+                        <RotateCcw className="w-3.5 h-3.5" /> Retake Quiz
                       </button>
                     )}
+
+                    <button
+                      onClick={() => setSubmittedQuiz(true)}
+                      disabled={submittedQuiz || Object.keys(quizAnswers).length === 0}
+                      className="ml-auto px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg disabled:opacity-40 transition-all"
+                    >
+                      Submit & Grade Quiz
+                    </button>
                   </div>
                 </div>
               )}
 
               {activeTab === 'flashcards' && (
-                <div className="h-full flex flex-col items-center justify-between py-4 space-y-6">
-                  <div className="flex items-center justify-between w-full text-xs text-slate-400">
-                    <span>Active Recall Flashcards</span>
-                    <button
-                      onClick={exportAnkiCsv}
-                      className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-300 rounded-lg flex items-center gap-1.5 transition-colors font-medium"
-                    >
-                      <Download className="w-3.5 h-3.5" /> Export Anki CSV
-                    </button>
-                  </div>
-
+                <div className="h-full flex flex-col items-center justify-center space-y-6">
                   {studySet?.flashcards?.length ? (
                     <div className="w-full max-w-md space-y-4">
-                      {/* Flip Card Container */}
+                      <div className="flex items-center justify-between text-xs text-slate-400">
+                        <span className="font-medium text-purple-400">
+                          {studySet.flashcards[currentCardIndex]?.category || 'Card'}
+                        </span>
+                        <button
+                          onClick={exportAnkiCsv}
+                          className="flex items-center gap-1 hover:text-white transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" /> Export Anki CSV
+                        </button>
+                      </div>
+
                       <div
                         onClick={() => setIsFlipped(!isFlipped)}
-                        className="w-full h-64 bg-gradient-to-tr from-slate-900 via-slate-900 to-purple-950/40 border border-purple-500/30 hover:border-purple-400/60 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                        className="h-64 w-full bg-slate-900 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer shadow-xl transition-all relative select-none"
                       >
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-2">
-                          {isFlipped ? "Answer (Back)" : "Prompt (Front - Click to Flip)"}
+                        <span className="absolute top-4 right-4 text-[10px] uppercase tracking-wider font-semibold text-slate-500 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">
+                          {isFlipped ? 'Answer' : 'Front'}
                         </span>
-                        <p className="text-base font-medium text-white leading-relaxed">
+
+                        <p className="text-sm sm:text-base font-medium text-slate-100">
                           {isFlipped
                             ? studySet.flashcards[currentCardIndex]?.back
                             : studySet.flashcards[currentCardIndex]?.front}
                         </p>
+
+                        <span className="absolute bottom-4 text-[11px] text-slate-500">
+                          Click to {isFlipped ? 'see front' : 'flip answer'}
+                        </span>
                       </div>
 
-                      {/* Card Controls */}
-                      <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
                         <button
                           onClick={() => {
                             setIsFlipped(false);
@@ -325,15 +389,15 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
 
               {activeTab === 'audio' && (
                 <div className="h-full flex flex-col items-center justify-center space-y-6 text-center">
-                  <div className={`p-5 rounded-full ${audioUrl ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 animate-bounce' : 'bg-purple-500/10 border border-purple-500/20 text-purple-400'}`}>
+                  <div className={`p-5 rounded-full ${audioUrl || isPlayingTts ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 animate-pulse' : 'bg-purple-500/10 border border-purple-500/20 text-purple-400'}`}>
                     <Volume2 className="w-10 h-10" />
                   </div>
 
                   <div>
                     <h4 className="text-lg font-bold text-white">Audio Podcast Overview</h4>
                     <p className="text-xs text-slate-400 max-w-sm mt-1">
-                      {audioUrl
-                        ? 'Audio podcast generated successfully! Listen below:'
+                      {audioUrl || isPlayingTts
+                        ? 'Audio overview ready! Listen to the synthesized narration below:'
                         : 'Synthesize document key findings into a clear, AI-narrated audio summary.'}
                     </p>
                   </div>
@@ -342,38 +406,97 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                     <div className="w-full max-w-md p-5 bg-slate-900 border border-purple-500/30 rounded-2xl shadow-xl space-y-4">
                       <div className="flex items-center justify-center gap-2 text-xs font-semibold text-purple-300">
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </span>
-                        AI Voice Synthesis Ready
+                        AI Voice Synthesis Stream
                       </div>
-                      <audio controls autoPlay className="w-full rounded-lg" src={audioUrl}>
-                        Your browser does not support audio playback.
-                      </audio>
+
+                      {!audioError ? (
+                        <audio
+                          controls
+                          autoPlay
+                          onError={() => setAudioError(true)}
+                          className="w-full rounded-lg"
+                          src={audioUrl}
+                        >
+                          Your browser does not support audio playback.
+                        </audio>
+                      ) : (
+                        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>Direct MP3 playback restricted by browser context. Use Web Voice below.</span>
+                        </div>
+                      )}
+
+                      {/* Interactive Web Speech Voice Playback Toggle */}
+                      <div className="pt-2 flex flex-col gap-2">
+                        <button
+                          onClick={handleToggleTts}
+                          className="w-full py-2.5 px-4 bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 rounded-xl text-xs font-semibold text-purple-200 transition-all flex items-center justify-center gap-2"
+                        >
+                          {isPlayingTts ? (
+                            <>
+                              <Pause className="w-4 h-4 fill-purple-300" /> Pause Speech Reader
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 text-purple-400" /> Play Narration with AI Voice
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={handleGenerateAudio}
+                          disabled={generatingAudio}
+                          className="text-xs text-slate-400 hover:text-white underline transition-colors"
+                        >
+                          {generatingAudio ? 'Regenerating...' : 'Regenerate Audio File'}
+                        </button>
+                      </div>
+
+                      {audioText && (
+                        <div className="text-left text-[11px] p-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-400 max-h-32 overflow-y-auto">
+                          <div className="font-semibold text-slate-300 mb-1 flex items-center gap-1">
+                            <FileText className="w-3 h-3 text-purple-400" /> Script Preview:
+                          </div>
+                          {audioText}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4 w-full max-w-sm">
                       <button
                         onClick={handleGenerateAudio}
                         disabled={generatingAudio}
-                        className="text-xs text-slate-400 hover:text-white underline transition-colors"
+                        className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                       >
-                        Regenerate Audio
+                        {generatingAudio ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" /> Synthesizing Audio (gTTS)...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4 fill-white" /> Generate Audio Overview
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        onClick={handleToggleTts}
+                        className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-medium text-slate-300 transition-all flex items-center justify-center gap-2"
+                      >
+                        {isPlayingTts ? (
+                          <>
+                            <Pause className="w-4 h-4 fill-slate-300" /> Stop Speech Narration
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 text-purple-400" /> Instant Browser Speech Narration
+                          </>
+                        )}
                       </button>
                     </div>
-                  ) : (
-                    <button
-                      onClick={handleGenerateAudio}
-                      disabled={generatingAudio}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-sm rounded-xl shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
-                    >
-                      {generatingAudio ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" /> Synthesizing Audio (gTTS)...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 fill-white" /> Generate Audio Overview
-                        </>
-                      )}
-                    </button>
                   )}
                 </div>
               )}
