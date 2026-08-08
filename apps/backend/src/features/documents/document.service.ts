@@ -135,10 +135,12 @@ export class DocumentService {
   private static async postToAiService(endpoint: string, payload: any): Promise<any> {
     const urls = [
       `${config.aiServiceUrl}${endpoint}`,
+      process.env.AI_SERVICE_URL ? `${process.env.AI_SERVICE_URL}${endpoint}` : '',
+      `https://docbrain-ai-1.onrender.com${endpoint}`,
       `http://127.0.0.1:8001${endpoint}`,
       `http://localhost:8001${endpoint}`,
       `http://127.0.0.1:8000${endpoint}`,
-    ];
+    ].filter(Boolean);
     const uniqueUrls = Array.from(new Set(urls));
 
     let lastError = 'AI Microservice is unreachable';

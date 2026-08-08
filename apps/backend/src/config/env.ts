@@ -38,6 +38,6 @@ export const config = {
     maxSizeMb: parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10),
     uploadDir: process.env.UPLOAD_DIR || './uploads',
   },
-  aiServiceUrl: process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001',
+  aiServiceUrl: process.env.AI_SERVICE_URL || (process.env.NODE_ENV === 'production' ? 'https://docbrain-ai-1.onrender.com' : 'http://127.0.0.1:8001'),
 };
 
