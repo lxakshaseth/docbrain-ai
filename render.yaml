@@ -4,7 +4,7 @@ services:
     name: pdf-ai-service
     env: python
     region: oregon
-    buildCommand: cd apps/ai-service && pip install -r requirements.txt
+    buildCommand: cd apps/ai-service && pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install -r requirements.txt
     startCommand: cd apps/ai-service && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PORT
