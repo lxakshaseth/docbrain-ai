@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { config } from '../../config/env.js';
 import { conversationRepository } from '../../repositories/conversation.repository.js';
 import { messageRepository } from '../../repositories/message.repository.js';
 import { documentRepository } from '../../repositories/document.repository.js';
@@ -110,25 +111,49 @@ export class ChatService {
       // HTTP Fallback to AI Service /api/v1/query
       (async () => {
         try {
-          const aiUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001';
-          const resp = await fetch(`${aiUrl}/api/v1/query`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              query,
-              collection_name: doc.vectorCollectionId,
-              conversation_id: conv!.id,
-              top_k: 4,
-            }),
-          });
-          if (resp.ok) {
-            const data = await resp.json();
-            const answerText = data.answer || data.content || 'AI response received.';
+          const aiCandidateUrls = [
+            config.aiServiceUrl,
+            process.env.AI_SERVICE_URL || '',
+            'https://docbrain-ai-1.onrender.com',
+            'http://127.0.0.1:8001',
+            'http://localhost:8001',
+          ].filter(Boolean);
+
+          const uniqueUrls = Array.from(new Set(aiCandidateUrls));
+          let querySuccess = false;
+
+          for (const baseUrl of uniqueUrls) {
+            try {
+              const resp = await fetch(`${baseUrl}/api/v1/query`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  query,
+                  collection_name: doc.vectorCollectionId,
+                  conversation_id: conv!.id,
+                  top_k: 4,
+                }),
+              });
+              if (resp.ok) {
+                const data = await resp.json();
+                const answerText = data.answer || data.content || 'AI response received.';
+                await messageRepository.create({
+                  conversationId: conv!.id,
+                  sender: 'assistant',
+                  content: answerText,
+                  sources: data.sources || [],
+                });
+                querySuccess = true;
+                break;
+              }
+            } catch (_) {}
+          }
+
+          if (!querySuccess) {
             await messageRepository.create({
               conversationId: conv!.id,
               sender: 'assistant',
-              content: answerText,
-              sources: data.sources || [],
+              content: 'Sorry, the AI service is currently unreachable. Please verify AI_SERVICE_URL in Render settings.',
             });
           }
         } catch (err: any) {
