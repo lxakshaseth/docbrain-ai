@@ -196,13 +196,22 @@ export class DocumentService {
     let textToSpeak = `${doc.title} summary overview.`;
     try {
       const summary = await this.getSummary(userId, documentId);
-      if (summary?.executiveSummary) textToSpeak = summary.executiveSummary;
+      if (summary?.executiveSummary) {
+        textToSpeak = summary.executiveSummary;
+      } else if (summary?.keyTakeaways && Array.isArray(summary.keyTakeaways) && summary.keyTakeaways.length > 0) {
+        textToSpeak = summary.keyTakeaways.join('. ');
+      }
     } catch (_e) {
       // fallback text
     }
 
-    const data = await this.postToAiService('/api/v1/study/audio-overview', { text: textToSpeak, document_id: documentId });
-    return data;
+    const aiRes = await this.postToAiService('/api/v1/study/audio-overview', { text: textToSpeak, document_id: documentId });
+    return {
+      audioUrl: `/documents/${documentId}/audio-file`,
+      text: textToSpeak,
+      documentId,
+      ...(aiRes || {})
+    };
   }
 
   public static async togglePublicShare(userId: string, documentId: string) {

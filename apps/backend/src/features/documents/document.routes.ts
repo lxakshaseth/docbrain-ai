@@ -22,6 +22,7 @@ router.get('/:id/file', DocumentController.downloadFile);
 router.get('/:id/summary', DocumentController.getSummary);
 router.get('/:id/study-set', DocumentController.getStudySet);
 router.post('/:id/audio-overview', DocumentController.generateAudio);
+router.get('/:id/audio-file', DocumentController.getAudioFile);
 router.post('/:id/share', DocumentController.toggleShare);
 router.delete('/:id', DocumentController.remove);
 router.post('/:id/reprocess', DocumentController.reprocess);

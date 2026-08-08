@@ -132,7 +132,14 @@ def generate_audio_overview(payload: dict):
     output_filename = f"audio_{document_id}.mp3"
     output_path = os.path.join(output_dir, output_filename)
     audio_path = StudyService.generate_audio_overview(text, output_path)
-    return {"success": True, "data": {"audioUrl": f"http://127.0.0.1:8001/public/audio/{output_filename}", "path": audio_path}}
+    return {
+        "success": True, 
+        "data": {
+            "audioUrl": f"/public/audio/{output_filename}", 
+            "path": audio_path,
+            "text": text
+        }
+    }
 
 @router.post("/compare")
 def compare_documents(payload: dict):

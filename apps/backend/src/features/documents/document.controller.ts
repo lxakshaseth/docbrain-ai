@@ -1,9 +1,11 @@
+import fs from 'fs';
 import path from 'path';
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../auth/auth.middleware.js';
 import { DocumentService } from './document.service.js';
 import { ApiResult } from '../../utils/apiResponse.js';
 import { asyncHandler } from '../../core/asyncHandler.js';
+import { config } from '../../config/env.js';
 
 export class DocumentController {
   public static upload = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
@@ -68,6 +70,32 @@ export class DocumentController {
     const { id } = req.params;
     const audioData = await DocumentService.generateAudioOverview(userId, id);
     return ApiResult.success(res, audioData, 'Generated audio overview podcast');
+  });
+
+  public static getAudioFile = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.id;
+    const { id } = req.params;
+    await DocumentService.getDocumentById(userId, id);
+
+    const localAudioPath = path.resolve(process.cwd(), '../ai-service/public/audio', `audio_${id}.mp3`);
+    if (fs.existsSync(localAudioPath)) {
+      res.setHeader('Content-Type', 'audio/mpeg');
+      return res.sendFile(localAudioPath);
+    }
+
+    try {
+      const aiServiceUrl = config.aiServiceUrl || 'http://127.0.0.1:8001';
+      const audioRes = await fetch(`${aiServiceUrl}/public/audio/audio_${id}.mp3`);
+      if (audioRes.ok && audioRes.body) {
+        res.setHeader('Content-Type', 'audio/mpeg');
+        const arrayBuf = await audioRes.arrayBuffer();
+        return res.send(Buffer.from(arrayBuf));
+      }
+    } catch (_e) {
+      // ignore
+    }
+
+    return ApiResult.error(res, 'Audio file not found or not generated yet', 404);
   });
 
   public static toggleShare = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
