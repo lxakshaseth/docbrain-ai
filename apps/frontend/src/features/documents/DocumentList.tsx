@@ -113,7 +113,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       {isLoading ? (
         <DocumentListSkeleton />
       ) : filteredDocs.length === 0 ? (
-        <div className="p-4 text-center text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-900/20 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+        <div className="p-5 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50/70 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
           {searchQuery ? 'No matching documents' : 'No documents uploaded yet.'}
         </div>
       ) : (
@@ -129,8 +129,8 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                 onClick={() => handleSelectDocument(doc)}
                 className={`relative group flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
                   isActive
-                    ? 'bg-indigo-50/80 border-indigo-200 text-indigo-900 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-xs font-semibold'
-                    : 'bg-white dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                    ? 'bg-indigo-50/90 border-indigo-200 text-indigo-950 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-xs font-semibold'
+                    : 'bg-white dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-300/80 shadow-2xs'
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0 pr-1 flex-1">
