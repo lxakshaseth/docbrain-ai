@@ -16,6 +16,7 @@ export const useConversationsQuery = () => {
       return res.data;
     },
     enabled: !!token,
+    staleTime: 1000 * 60 * 5, // 5 min cache
   });
 };
 
@@ -34,7 +35,16 @@ export const useMessagesQuery = (conversationId: string | null) => {
       return res.data;
     },
     enabled: !!conversationId && !!token,
-    refetchInterval: isStreaming ? 1000 : false, // Auto-poll every 1s while streaming until assistant response lands
+    staleTime: 1000 * 30, // 30 sec cache
+    refetchInterval: (query) => {
+      const messages = query.state.data;
+      const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1] : null;
+      // Continuously poll every 1.2s IF user is waiting for assistant or streaming flag is active
+      if (isStreaming || (lastMsg && lastMsg.sender === 'user')) {
+        return 1200;
+      }
+      return false;
+    },
     refetchOnWindowFocus: false,
   });
 };
@@ -57,6 +67,24 @@ export const useSendMessageMutation = () => {
       if (data?.conversationId) {
         queryClient.invalidateQueries({ queryKey: ['messages', data.conversationId] });
       }
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    },
+  });
+};
+
+export const useDeleteConversationMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      const res = await fetchApi(`/chat/conversations/${conversationId}`, {
+        method: 'DELETE',
+      });
+      if (!res.success) {
+        throw new Error(res.message || 'Failed to delete conversation session');
+      }
+      return conversationId;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
   });

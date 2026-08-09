@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
 
     embedding_model_name: str = "all-MiniLM-L6-v2"
-    groq_model_name: str = "llama-3.3-70b-versatile"
+    groq_model_name: str = "llama-3.1-8b-instant"
     llm_model_name: str = "gemini-1.5-flash"
 
     default_chunk_size: int = 1000
@@ -35,3 +35,4 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+

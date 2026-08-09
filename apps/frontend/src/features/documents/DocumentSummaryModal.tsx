@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Sparkles, Brain, ListChecks, Tags, Network, Loader2 } from 'lucide-react';
-import { fetchApi } from '../../lib/api-client';
-import type { IDocumentSummary } from '@pdf-chatbot/shared';
+import { useDocumentSummaryQuery } from '../../hooks/useDocumentHooks';
 import { MindMapVisualizer } from '../../components/MindMapVisualizer';
 
 interface DocumentSummaryModalProps {
@@ -18,28 +17,7 @@ export const DocumentSummaryModal: React.FC<DocumentSummaryModalProps> = ({
   documentTitle,
 }) => {
   const [activeTab, setActiveTab] = useState<'summary' | 'mindmap' | 'entities'>('summary');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [summaryData, setSummaryData] = useState<IDocumentSummary | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen && documentId) {
-      setLoading(true);
-      setError(null);
-      fetchApi<IDocumentSummary>(`/documents/${documentId}/summary`)
-        .then((res) => {
-          if (res.success && res.data) {
-            setSummaryData(res.data);
-          } else {
-            setError(res.message || 'Failed to load summary');
-          }
-        })
-        .catch((err) => {
-          setError(err.message || 'Failed to fetch summary');
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [isOpen, documentId]);
+  const { data: summaryData, isLoading, error, refetch } = useDocumentSummaryQuery(documentId, isOpen);
 
   if (!isOpen || !documentId) return null;
 
@@ -101,10 +79,20 @@ export const DocumentSummaryModal: React.FC<DocumentSummaryModalProps> = ({
 
         {/* Body Content */}
         <div className="flex-1 p-6 overflow-y-auto bg-slate-50/50 dark:bg-slate-950/40 text-slate-800 dark:text-slate-200 flex flex-col">
-          {loading ? (
-            <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400 text-sm">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-600 dark:text-blue-500" />
-              <span>Analyzing document & generating AI intelligence...</span>
+          {isLoading ? (
+            <div className="h-full flex flex-col items-center justify-center gap-4 text-slate-500 dark:text-slate-400 text-sm">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-blue-400 animate-pulse">
+                <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-blue-500" />
+              </div>
+              <div className="text-center space-y-1">
+                <p className="font-extrabold text-slate-900 dark:text-slate-100">Generating AI Executive Summary & Mind Map...</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Extracting key takeaways, concepts, and entity relations...</p>
+              </div>
+              <div className="w-full max-w-md space-y-2 mt-4 animate-pulse">
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-full" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-5/6" />
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-md w-4/6" />
+              </div>
             </div>
           ) : error ? (
             <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-700 dark:text-slate-300 text-sm text-center p-6">
@@ -113,21 +101,11 @@ export const DocumentSummaryModal: React.FC<DocumentSummaryModalProps> = ({
               </div>
               <h4 className="font-bold text-slate-900 dark:text-white text-base">Unable to connect to AI Summary Service</h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
-                {error.includes('fetch') ? 'Backend or AI microservice is currently starting up or offline. Make sure backend service (Port 5000) and AI service (Port 8001) are running.' : error}
+                {(error as Error)?.message || 'Service unreachable. Please retry.'}
               </p>
               <button
-                onClick={() => {
-                  setLoading(true);
-                  setError(null);
-                  fetchApi<IDocumentSummary>(`/documents/${documentId}/summary`)
-                    .then((res) => {
-                      if (res.success && res.data) setSummaryData(res.data);
-                      else setError(res.message || 'Failed to load summary');
-                    })
-                    .catch((err) => setError(err.message || 'Failed to fetch summary'))
-                    .finally(() => setLoading(false));
-                }}
-                className="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-md transition-all"
+                onClick={() => refetch()}
+                className="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer"
               >
                 Retry Analysis
               </button>
@@ -196,3 +174,4 @@ export const DocumentSummaryModal: React.FC<DocumentSummaryModalProps> = ({
     </div>
   );
 };
+

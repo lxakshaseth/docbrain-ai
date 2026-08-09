@@ -18,7 +18,7 @@ export class AuthService {
       throw new AppError('Email is already registered', 400);
     }
 
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(8);
     const passwordHash = await bcrypt.hash(dto.password, salt);
 
     const userDoc = await userRepository.create({

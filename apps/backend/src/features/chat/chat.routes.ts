@@ -13,5 +13,6 @@ router.get('/history', validateRequest(ChatHistoryQuerySchema), ChatController.g
 router.post('/conversations', ChatController.createConversation);
 router.get('/conversations', ChatController.listConversations);
 router.get('/conversations/:conversationId/messages', ChatController.getMessagesForConversation);
+router.delete('/conversations/:conversationId', ChatController.deleteConversation);
 
 export default router;

@@ -14,6 +14,11 @@ export class MessageRepository {
   public async findByConversationId(conversationId: string): Promise<IMessageEntity[]> {
     return MessageModel.find({ conversationId }).sort({ createdAt: 1 });
   }
+
+  public async deleteByConversationId(conversationId: string): Promise<number> {
+    const res = await MessageModel.deleteMany({ conversationId });
+    return res.deletedCount;
+  }
 }
 
 export const messageRepository = new MessageRepository();

@@ -174,4 +174,13 @@ export class ChatService {
       correlationId,
     };
   }
+
+  public static async deleteConversation(userId: string, conversationId: string): Promise<boolean> {
+    const conv = await conversationRepository.findByIdAndUser(conversationId, userId);
+    if (!conv) {
+      throw new AppError('Conversation not found', 404);
+    }
+    await messageRepository.deleteByConversationId(conversationId);
+    return conversationRepository.deleteByIdAndUser(conversationId, userId);
+  }
 }

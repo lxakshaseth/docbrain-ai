@@ -43,11 +43,11 @@ export const AuthModal: React.FC = () => {
   const loading = loginMutation.isPending || registerMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 dark:bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-2xl shadow-slate-900/10 dark:shadow-black/50 transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 md:p-7 shadow-2xl shadow-slate-900/10 dark:shadow-black/60 transition-all">
         <button
           onClick={() => setAuthModalOpen(false)}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -55,7 +55,7 @@ export const AuthModal: React.FC = () => {
         <div className="flex gap-4 mb-6 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex items-center gap-2 pb-2 text-sm font-semibold border-b-2 transition-colors ${
+            className={`flex items-center gap-2 pb-2 text-sm font-extrabold border-b-2 transition-colors ${
               isLogin ? 'border-indigo-600 text-indigo-600 dark:border-blue-500 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400'
             }`}
           >
@@ -63,7 +63,7 @@ export const AuthModal: React.FC = () => {
           </button>
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex items-center gap-2 pb-2 text-sm font-semibold border-b-2 transition-colors ${
+            className={`flex items-center gap-2 pb-2 text-sm font-extrabold border-b-2 transition-colors ${
               !isLogin ? 'border-indigo-600 text-indigo-600 dark:border-blue-500 dark:text-blue-400' : 'border-transparent text-slate-500 dark:text-slate-400'
             }`}
           >
@@ -72,7 +72,7 @@ export const AuthModal: React.FC = () => {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs">
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-semibold">
             {error}
           </div>
         )}
@@ -81,25 +81,25 @@ export const AuthModal: React.FC = () => {
           {!isLogin && (
             <>
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-400 mb-1">Full Name</label>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">Full Name</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Alex Morgan"
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-xs transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200/90 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-2xs transition-all font-medium"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-400 mb-1 flex items-center gap-1">
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1 flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-blue-400" /> Account Role
                 </label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-xs transition-all"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200/90 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-2xs transition-all font-medium"
                 >
                   <option value="user">User (Standard Access)</option>
                   <option value="admin">Admin (Full Control Access)</option>
@@ -109,26 +109,26 @@ export const AuthModal: React.FC = () => {
           )}
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-400 mb-1">Email Address</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">Email Address</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="alex@example.com"
-              className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-xs transition-all"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200/90 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-2xs transition-all font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-400 mb-1">Password</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-300 mb-1">Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-3.5 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-xs transition-all"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200/90 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-2xs transition-all font-medium"
             />
           </div>
 

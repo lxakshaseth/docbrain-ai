@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --background: #f7f6f2;
-  --foreground: #1e293b;
+  --background: #f4f5f7;
+  --foreground: #0f172a;
   --card-bg: #ffffff;
-  --border-color: #e5e3dc;
+  --border-color: #e2e4e9;
   --scrollbar-track: transparent;
   --scrollbar-thumb: #cbd5e1;
   --scrollbar-thumb-hover: #94a3b8;
 }
 
 html.light {
-  --background: #f7f6f2;
-  --foreground: #1e293b;
+  --background: #f4f5f7;
+  --foreground: #0f172a;
   --card-bg: #ffffff;
-  --border-color: #e5e3dc;
+  --border-color: #e2e4e9;
   --scrollbar-track: transparent;
   --scrollbar-thumb: #cbd5e1;
   --scrollbar-thumb-hover: #94a3b8;
@@ -117,6 +117,24 @@ body {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Chrome/Edge/Safari Webkit Autofill Override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--foreground) !important;
+  transition: background-color 50000s ease-in-out 0s;
+  box-shadow: 0 0 0px 1000px #f8f9fa inset !important;
+}
+
+html.dark input:-webkit-autofill,
+html.dark input:-webkit-autofill:hover,
+html.dark input:-webkit-autofill:focus,
+html.dark input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  box-shadow: 0 0 0px 1000px #090d16 inset !important;
 }
 
 

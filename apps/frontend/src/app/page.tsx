@@ -70,52 +70,62 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#f7f6f2] dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
+    <div className="flex flex-col h-screen bg-[#f4f5f7] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
       {/* Root Feature Modals */}
       <AuthModal />
 
-      <PdfViewerModal
-        isOpen={isPdfViewerOpen}
-        onClose={() => setIsPdfViewerOpen(false)}
-        documentId={activeDocument?.id || null}
-        documentTitle={activeDocument?.title || 'Document'}
-        initialPage={pdfViewerPage}
-      />
+      {isPdfViewerOpen && (
+        <PdfViewerModal
+          isOpen={isPdfViewerOpen}
+          onClose={() => setIsPdfViewerOpen(false)}
+          documentId={activeDocument?.id || null}
+          documentTitle={activeDocument?.title || 'Document'}
+          initialPage={pdfViewerPage}
+        />
+      )}
 
-      <DocumentSummaryModal
-        isOpen={!!summaryDoc}
-        onClose={() => setSummaryDoc(null)}
-        documentId={summaryDoc?.id || null}
-        documentTitle={summaryDoc?.title || ''}
-      />
+      {summaryDoc && (
+        <DocumentSummaryModal
+          isOpen={!!summaryDoc}
+          onClose={() => setSummaryDoc(null)}
+          documentId={summaryDoc?.id || null}
+          documentTitle={summaryDoc?.title || ''}
+        />
+      )}
 
-      <StudyHubModal
-        isOpen={!!studyDoc}
-        onClose={() => setStudyDoc(null)}
-        documentId={studyDoc?.id || null}
-        documentTitle={studyDoc?.title || ''}
-      />
+      {studyDoc && (
+        <StudyHubModal
+          isOpen={!!studyDoc}
+          onClose={() => setStudyDoc(null)}
+          documentId={studyDoc?.id || null}
+          documentTitle={studyDoc?.title || ''}
+        />
+      )}
 
-      <ShareModal
-        isOpen={!!shareDoc}
-        onClose={() => setShareDoc(null)}
-        document={shareDoc}
-      />
+      {shareDoc && (
+        <ShareModal
+          isOpen={!!shareDoc}
+          onClose={() => setShareDoc(null)}
+          document={shareDoc}
+        />
+      )}
 
-      <ComparisonModal
-        isOpen={compareDocIds.length >= 2}
-        onClose={() => setCompareDocIds([])}
-        selectedDocIds={compareDocIds}
-      />
+      {compareDocIds.length >= 2 && (
+        <ComparisonModal
+          isOpen={compareDocIds.length >= 2}
+          onClose={() => setCompareDocIds([])}
+          selectedDocIds={compareDocIds}
+        />
+      )}
 
       {/* Main Header Bar */}
-      <header className="relative z-30 h-14 border-b border-[#e5e3dc] dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl px-4 md:px-6 flex items-center justify-between shrink-0 shadow-2xs transition-colors duration-250" suppressHydrationWarning>
+      <header className="relative z-30 h-14 border-b border-[#e2e4e9] dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl px-4 md:px-6 flex items-center justify-between shrink-0 shadow-2xs transition-colors duration-250" suppressHydrationWarning>
         <div className="flex items-center gap-3">
           {user && (
             <>
               <button
                 onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-                className="md:hidden p-1.5 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900"
+                className="md:hidden p-1.5 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900"
                 title="Toggle Sidebar"
                 suppressHydrationWarning
               >
@@ -124,7 +134,7 @@ export default function Home() {
 
               <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="hidden md:flex p-1.5 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                className="hidden md:flex p-1.5 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
                 title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
               >
                 {isSidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
@@ -140,7 +150,7 @@ export default function Home() {
               <h1 className="text-sm font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 dark:from-blue-400 dark:to-indigo-300">
                 DocBrain AI
               </h1>
-              <p className="text-[10px] text-slate-600 dark:text-slate-400 hidden sm:block font-medium">Intelligent PDF Knowledge Assistant</p>
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 hidden sm:block font-semibold">Intelligent PDF Knowledge Assistant</p>
             </div>
           </div>
         </div>
@@ -154,7 +164,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setAuthModalOpen(true, 'login')}
-                className="px-3.5 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 border border-[#e2e0d7] dark:border-slate-700/80 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+                className="px-3.5 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-200 border border-[#e2e4e9] dark:border-slate-700/80 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
                 suppressHydrationWarning
               >
                 <LogIn className="w-3.5 h-3.5 text-indigo-600 dark:text-blue-400" /> Sign In
@@ -176,19 +186,19 @@ export default function Home() {
         <div className="flex-1 flex p-3 md:p-4 gap-3 md:gap-4 overflow-hidden relative">
           {/* Left Sidebar */}
           <aside
-            className={`fixed md:relative inset-y-0 left-0 z-20 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-[#e5e3dc] dark:border-slate-800 rounded-3xl p-3.5 shadow-sm shadow-slate-200/50 backdrop-blur-xl transition-all duration-300 ${
+            className={`fixed md:relative inset-y-0 left-0 z-20 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-[#e2e4e9] dark:border-slate-800 rounded-3xl p-3.5 shadow-sm shadow-slate-200/60 backdrop-blur-xl transition-all duration-300 ${
               isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
             } ${isSidebarCollapsed ? 'md:hidden' : 'md:flex'}`}
           >
             <DocumentUpload compact />
 
-            <div className="grid grid-cols-2 p-1 bg-[#eceae4] dark:bg-slate-950 rounded-2xl border border-[#dedcd4] dark:border-slate-800/80 text-xs font-medium shrink-0">
+            <div className="grid grid-cols-2 p-1 bg-[#e9ecef] dark:bg-slate-950 rounded-2xl border border-[#dbe0e6] dark:border-slate-800/80 text-xs font-medium shrink-0">
               <button
                 onClick={() => setActiveTab('documents')}
                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-xl transition-all ${
                   activeTab === 'documents'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-[#e0ded6] dark:border-slate-800 font-extrabold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-semibold'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-[#dbe0e6] dark:border-slate-800 font-extrabold'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-bold'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5 text-indigo-600" /> Documents
@@ -197,8 +207,8 @@ export default function Home() {
                 onClick={() => setActiveTab('history')}
                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-xl transition-all ${
                   activeTab === 'history'
-                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-[#e0ded6] dark:border-slate-800 font-extrabold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-semibold'
+                    ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs border border-[#dbe0e6] dark:border-slate-800 font-extrabold'
+                    : 'text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-bold'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5 text-indigo-600" /> History
