@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle, AlertCircle, Loader2, FileUp } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useDocumentStore } from '../../store/useDocumentStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import type { IDocument } from '@pdf-chatbot/shared';
@@ -14,7 +15,8 @@ interface DocumentUploadProps {
 }
 
 export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false, onSuccess }) => {
-  const { addDocument, setActiveDocument } = useDocumentStore();
+  const queryClient = useQueryClient();
+  const { addDocument, setActiveDocument, setUploadingState } = useDocumentStore();
   const { token, setAuthModalOpen } = useAuthStore();
   const [uploading, setUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -24,17 +26,29 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
 
   const processFile = async (file: File) => {
     if (!token) {
-      setAuthModalOpen(true);
+      setAuthModalOpen(true, 'login');
+      setIsError(true);
+      setStatusMessage('Please sign in to upload documents.');
       return;
     }
 
-    if (file.type !== 'application/pdf') {
+    const ALLOWED_EXTENSIONS = ['.pdf', '.docx', '.txt', '.md'];
+    const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')).toLowerCase() : '';
+    const isValidExt = ALLOWED_EXTENSIONS.includes(ext);
+    const isValidMime =
+      file.type === 'application/pdf' ||
+      file.type === 'application/x-pdf' ||
+      file.type.startsWith('text/') ||
+      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    if (!isValidExt && !isValidMime) {
       setIsError(true);
-      setStatusMessage('Please select a valid PDF document.');
+      setStatusMessage('Please select a valid PDF, DOCX, TXT, or MD document.');
       return;
     }
 
     setUploading(true);
+    setUploadingState(true, file.name);
     setStatusMessage('Uploading & vectorizing PDF...');
     setIsError(false);
 
@@ -56,6 +70,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
         const uploadedDoc: IDocument = data.data;
         addDocument(uploadedDoc);
         setActiveDocument(uploadedDoc);
+        queryClient.invalidateQueries({ queryKey: ['documents'] });
         setStatusMessage(`'${uploadedDoc.title}' uploaded successfully!`);
         if (onSuccess) onSuccess();
       } else {
@@ -67,6 +82,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
       setStatusMessage(err.message || 'Network error uploading document');
     } finally {
       setUploading(false);
+      setUploadingState(false, null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -87,18 +103,18 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
 
   if (compact) {
     return (
-      <>
+      <div className="w-full space-y-2">
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf"
+          accept=".pdf,.docx,.txt,.md"
           onChange={handleFileChange}
           className="hidden"
         />
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-[0.99] disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer"
         >
           {uploading ? (
             <Loader2 className="w-4 h-4 animate-spin text-white" />
@@ -107,7 +123,28 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
           )}
           <span>{uploading ? 'Processing PDF...' : 'Upload New PDF'}</span>
         </button>
-      </>
+
+        {statusMessage && (
+          <div
+            className={`p-2.5 rounded-xl text-[11px] font-medium flex items-center gap-2 transition-all shadow-2xs ${
+              isError
+                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                : uploading
+                ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20'
+                : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+            }`}
+          >
+            {uploading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-indigo-500" />
+            ) : isError ? (
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
+            ) : (
+              <CheckCircle className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            )}
+            <span className="truncate flex-1">{statusMessage}</span>
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -116,7 +153,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf"
+        accept=".pdf,.docx,.txt,.md"
         onChange={handleFileChange}
         className="hidden"
       />
@@ -169,4 +206,5 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
     </div>
   );
 };
+
 

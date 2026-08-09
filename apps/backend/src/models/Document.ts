@@ -22,6 +22,7 @@ const documentSchema = new Schema<IDocumentEntity>(
     isPublicShare: { type: Boolean, default: false },
     shareToken: { type: String, index: true },
     summaryData: { type: Schema.Types.Mixed },
+    studySetData: { type: Schema.Types.Mixed },
   },
   {
     timestamps: true,

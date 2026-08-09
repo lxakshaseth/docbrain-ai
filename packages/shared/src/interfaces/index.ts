@@ -84,6 +84,7 @@ export interface IDocument {
   isPublicShare?: boolean;
   shareToken?: string;
   summaryData?: IDocumentSummary;
+  studySetData?: IStudySet;
   createdAt: string;
   updatedAt: string;
 }

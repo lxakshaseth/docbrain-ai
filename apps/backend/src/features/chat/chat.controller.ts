@@ -47,4 +47,11 @@ export class ChatController {
     const conversations = await ChatService.getUserConversations(userId);
     return ApiResult.success(res, conversations, 'Fetched conversations');
   });
+
+  public static deleteConversation = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user!.id;
+    const conversationId = req.params.conversationId;
+    await ChatService.deleteConversation(userId, conversationId);
+    return ApiResult.success(res, { conversationId }, 'Conversation session deleted successfully');
+  });
 }

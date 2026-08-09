@@ -16,6 +16,11 @@ export class ConversationRepository {
   public async findByDocumentAndUser(documentId: string, userId: string): Promise<IConversationEntity | null> {
     return ConversationModel.findOne({ documentId, userId }).sort({ updatedAt: -1 });
   }
+
+  public async deleteByIdAndUser(id: string, userId: string): Promise<boolean> {
+    const res = await ConversationModel.deleteOne({ _id: id, userId });
+    return res.deletedCount > 0;
+  }
 }
 
 export const conversationRepository = new ConversationRepository();

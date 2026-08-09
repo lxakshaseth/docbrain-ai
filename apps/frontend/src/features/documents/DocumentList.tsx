@@ -8,7 +8,7 @@ import { useConversationsQuery } from '../../hooks/useChatHooks';
 import { Badge } from '../../components/ui/Badge';
 import { ConfirmModal } from '../../components/ui/ConfirmModal';
 import { DocumentListSkeleton } from './DocumentListSkeleton';
-import { FileText, RefreshCw, Trash2, Search, Layers, GitCompare, Share2, Brain, GraduationCap, MoreVertical, CheckCircle2 } from 'lucide-react';
+import { FileText, RefreshCw, Trash2, Search, Layers, GitCompare, Share2, Brain, GraduationCap, MoreVertical, Loader2 } from 'lucide-react';
 import type { IDocument } from '@pdf-chatbot/shared';
 
 interface DocumentListProps {
@@ -24,7 +24,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   onOpenShare,
   onOpenCompare,
 }) => {
-  const { activeDocument, setActiveDocument } = useDocumentStore();
+  const { activeDocument, setActiveDocument, isUploading, uploadingFileName } = useDocumentStore();
   const { setActiveConversation } = useChatStore();
   const { data: documents = [], isLoading } = useDocumentsQuery();
   const { data: conversations = [] } = useConversationsQuery();
@@ -112,132 +112,170 @@ export const DocumentList: React.FC<DocumentListProps> = ({
 
       {isLoading ? (
         <DocumentListSkeleton />
-      ) : filteredDocs.length === 0 ? (
-        <div className="p-5 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50/70 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
-          {searchQuery ? 'No matching documents' : 'No documents uploaded yet.'}
-        </div>
       ) : (
-        <div className="space-y-1.5 flex-1 overflow-y-auto pr-1">
-          {filteredDocs.map((doc) => {
-            const isActive = activeDocument?.id === doc.id;
-            const isChecked = selectedDocIds.includes(doc.id);
-            const isMenuOpen = openMenuDocId === doc.id;
-
-            return (
-              <div
-                key={doc.id}
-                onClick={() => handleSelectDocument(doc)}
-                className={`relative group flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
-                  isActive
-                    ? 'bg-indigo-50/90 border-indigo-200 text-indigo-950 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-xs font-semibold'
-                    : 'bg-white dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-300/80 shadow-2xs'
-                }`}
-              >
-                <div className="flex items-center gap-2 min-w-0 pr-1 flex-1">
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={(e) => toggleSelectDocForCompare(doc.id, e as any)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer shrink-0"
-                    title="Select for multi-doc comparison"
-                  />
-
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    isActive
-                      ? 'bg-indigo-100 text-indigo-600 dark:bg-blue-500/20 dark:text-blue-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600'
-                  }`}>
-                    <FileText className="w-4 h-4" />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium truncate leading-tight">{doc.title}</p>
-                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      <span className="shrink-0">{doc.chunkCount > 0 ? `${doc.chunkCount} chunks` : 'Processing...'}</span>
-                      <span>•</span>
-                      <Badge variant={doc.status as any}>{doc.status}</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Single Clean Three-Dots Action Menu */}
-                <div className="relative shrink-0">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenMenuDocId(isMenuOpen ? null : doc.id);
-                    }}
-                    className={`p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
-                      isMenuOpen ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'opacity-80 group-hover:opacity-100'
-                    }`}
-                    title="Document Options"
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-
-                  {/* Dropdown Popover */}
-                  {isMenuOpen && (
-                    <div
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute right-0 top-8 z-50 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl shadow-slate-900/10 dark:shadow-black/50 py-1 text-xs font-normal transition-all"
-                    >
-                      <button
-                        onClick={() => {
-                          setOpenMenuDocId(null);
-                          if (onOpenSummary) onOpenSummary(doc);
-                        }}
-                        className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
-                      >
-                        <Brain className="w-3.5 h-3.5 text-blue-500" /> Summary & Mind Map
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setOpenMenuDocId(null);
-                          if (onOpenStudy) onOpenStudy(doc);
-                        }}
-                        className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 flex items-center gap-2"
-                      >
-                        <GraduationCap className="w-3.5 h-3.5 text-purple-500" /> Study Hub (Quiz/Deck)
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setOpenMenuDocId(null);
-                          if (onOpenShare) onOpenShare(doc);
-                        }}
-                        className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2"
-                      >
-                        <Share2 className="w-3.5 h-3.5 text-emerald-500" /> Share Public Link
-                      </button>
-
-                      <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
-
-                      <button
-                        onClick={() => {
-                          setOpenMenuDocId(null);
-                          reprocessMutation.mutate(doc.id);
-                        }}
-                        className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5 text-amber-500" /> Reprocess Document
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setOpenMenuDocId(null);
-                          setDocumentToDelete(doc.id);
-                        }}
-                        className="w-full px-3 py-2 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-rose-500" /> Delete Document
-                      </button>
-                    </div>
-                  )}
+        <div className="space-y-2 flex-1 overflow-y-auto pr-1">
+          {isUploading && (
+            <div className="relative flex items-center gap-2.5 p-2.5 rounded-2xl bg-indigo-50/90 dark:bg-indigo-950/40 border border-indigo-200/90 dark:border-indigo-800/80 shadow-xs animate-pulse">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-500/25">
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-extrabold truncate text-indigo-950 dark:text-indigo-200">
+                  {uploadingFileName || 'Uploading Document.pdf'}
+                </p>
+                <div className="flex items-center gap-1.5 text-[10px] text-indigo-700 dark:text-indigo-300 font-bold mt-0.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-600 animate-ping" />
+                  <span>Vectorizing & Ingesting Chunks...</span>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          )}
+
+          {filteredDocs.length === 0 && !isUploading ? (
+            <div className="p-5 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50/70 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+              {searchQuery ? 'No matching documents' : 'No documents uploaded yet.'}
+            </div>
+          ) : (
+            filteredDocs.map((doc) => {
+              const isActive = activeDocument?.id === doc.id;
+              const isChecked = selectedDocIds.includes(doc.id);
+              const isMenuOpen = openMenuDocId === doc.id;
+              const isProcessing = doc.status === 'pending' || (doc.status as string) === 'processing';
+
+              return (
+                <div
+                  key={doc.id}
+                  onClick={() => handleSelectDocument(doc)}
+                  className={`relative group flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
+                    isActive
+                      ? 'bg-[#eef2ff] border-[#c7d2fe] text-indigo-950 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-2xs font-extrabold'
+                      : 'bg-white dark:bg-slate-900/60 border-[#e2e4e9] dark:border-slate-800 text-slate-900 dark:text-slate-200 hover:bg-[#f8f9fa] hover:border-[#cbd0d8] shadow-2xs'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0 pr-1 flex-1">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => toggleSelectDocForCompare(doc.id, e as any)}
+                      className="w-3.5 h-3.5 rounded border-[#cbd0d8] dark:border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer shrink-0"
+                      title="Select for multi-doc comparison"
+                    />
+
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                      isProcessing
+                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
+                        : isActive
+                        ? 'bg-indigo-100 text-indigo-700 dark:bg-blue-500/20 dark:text-blue-400'
+                        : 'bg-[#edf0f5] dark:bg-slate-800 text-slate-700 dark:text-slate-400 group-hover:text-indigo-600'
+                    }`}>
+                      {isProcessing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <FileText className="w-4 h-4" />
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-extrabold truncate leading-tight text-slate-900 dark:text-slate-100">{doc.title}</p>
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-700 dark:text-slate-400 font-semibold mt-0.5">
+                        <span className="shrink-0">
+                          {isProcessing ? (
+                            <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold animate-pulse">
+                              <Loader2 className="w-3 h-3 animate-spin" /> Ingesting...
+                            </span>
+                          ) : doc.chunkCount > 0 ? (
+                            `${doc.chunkCount} chunks`
+                          ) : (
+                            'Ready'
+                          )}
+                        </span>
+                        {!isProcessing && (
+                          <>
+                            <span>•</span>
+                            <Badge variant={doc.status as any}>{doc.status}</Badge>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuDocId(isMenuOpen ? null : doc.id);
+                      }}
+                      className={`p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
+                        isMenuOpen ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white' : 'opacity-80 group-hover:opacity-100'
+                      }`}
+                      title="Document Options"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+
+                    {isMenuOpen && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute right-0 top-8 z-50 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl shadow-slate-900/10 dark:shadow-black/50 py-1 text-xs font-normal transition-all"
+                      >
+                        <button
+                          onClick={() => {
+                            setOpenMenuDocId(null);
+                            if (onOpenSummary) onOpenSummary(doc);
+                          }}
+                          className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-2"
+                        >
+                          <Brain className="w-3.5 h-3.5 text-blue-500" /> Summary & Mind Map
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpenMenuDocId(null);
+                            if (onOpenStudy) onOpenStudy(doc);
+                          }}
+                          className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400 flex items-center gap-2"
+                        >
+                          <GraduationCap className="w-3.5 h-3.5 text-purple-500" /> Study Hub (Quiz/Deck)
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpenMenuDocId(null);
+                            if (onOpenShare) onOpenShare(doc);
+                          }}
+                          className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2"
+                        >
+                          <Share2 className="w-3.5 h-3.5 text-emerald-500" /> Share Public Link
+                        </button>
+
+                        <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                        <button
+                          onClick={() => {
+                            setOpenMenuDocId(null);
+                            reprocessMutation.mutate(doc.id);
+                          }}
+                          className="w-full px-3 py-2 text-left text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5 text-amber-500" /> Reprocess Document
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setOpenMenuDocId(null);
+                            setDocumentToDelete(doc.id);
+                          }}
+                          className="w-full px-3 py-2 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-500" /> Delete Document
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>

@@ -30,11 +30,11 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
   if (isUser) {
     return (
-      <div className="flex gap-3 justify-end my-4">
-        <div className="max-w-[85%] md:max-w-[75%] bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 text-white rounded-3xl rounded-tr-xs px-4.5 py-3 text-sm shadow-md shadow-indigo-500/20 font-normal leading-relaxed">
+      <div className="flex items-end justify-end gap-2.5 my-4">
+        <div className="max-w-[85%] md:max-w-[70%] bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 text-white rounded-2xl rounded-tr-xs px-4 py-2.5 text-xs md:text-sm font-semibold shadow-md shadow-indigo-500/20 leading-relaxed text-left break-words">
           <MarkdownRenderer content={message.content} />
         </div>
-        <div className="w-8 h-8 rounded-2xl bg-white text-indigo-700 border border-slate-200/90 flex items-center justify-center shrink-0 text-xs font-bold shadow-2xs">
+        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-400 border border-slate-200/90 dark:border-slate-700 flex items-center justify-center shrink-0 text-xs font-bold shadow-2xs">
           <User className="w-4 h-4" />
         </div>
       </div>

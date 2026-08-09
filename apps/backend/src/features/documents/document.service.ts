@@ -54,9 +54,14 @@ export class DocumentService {
           });
           const chunkCount = aiResult?.chunk_count || aiResult?.chunks_ingested || 1;
           await documentRepository.updateStatus(doc.id, 'completed', chunkCount);
+          // Pre-generate summary, mind map & study set asynchronously in background for sub-second modal loading
+          DocumentService.getSummary(userId, doc.id).catch(() => {});
+          DocumentService.getStudySet(userId, doc.id).catch(() => {});
         } catch (err: any) {
           console.warn(`AI Service unreachable during ingestion for doc ${doc.id}: ${err.message}. Marking document as completed for viewing.`);
           await documentRepository.updateStatus(doc.id, 'completed', 1);
+          DocumentService.getSummary(userId, doc.id).catch(() => {});
+          DocumentService.getStudySet(userId, doc.id).catch(() => {});
         }
       })();
     }
@@ -122,9 +127,13 @@ export class DocumentService {
           });
           const chunkCount = aiResult?.chunk_count || aiResult?.chunks_ingested || 1;
           await documentRepository.updateStatus(doc.id, 'completed', chunkCount);
+          DocumentService.getSummary(userId, doc.id).catch(() => {});
+          DocumentService.getStudySet(userId, doc.id).catch(() => {});
         } catch (err: any) {
           console.warn(`AI Service unreachable during reprocess for doc ${doc.id}: ${err.message}. Marking document as completed for viewing.`);
           await documentRepository.updateStatus(doc.id, 'completed', 1);
+          DocumentService.getSummary(userId, doc.id).catch(() => {});
+          DocumentService.getStudySet(userId, doc.id).catch(() => {});
         }
       })();
     }
@@ -132,25 +141,32 @@ export class DocumentService {
     return updatedDoc!.toJSON() as unknown as IDocument;
   }
 
-  private static async postToAiService(endpoint: string, payload: any): Promise<any> {
-    const urls = [
-      `${config.aiServiceUrl}${endpoint}`,
+  private static async postToAiService(endpoint: string, payload: any, timeoutMs = 120000): Promise<any> {
+    const candidateUrls = [
+      config.aiServiceUrl ? `${config.aiServiceUrl}${endpoint}` : '',
       process.env.AI_SERVICE_URL ? `${process.env.AI_SERVICE_URL}${endpoint}` : '',
-      `https://docbrain-ai-1.onrender.com${endpoint}`,
       `http://127.0.0.1:8001${endpoint}`,
       `http://localhost:8001${endpoint}`,
-      `http://127.0.0.1:8000${endpoint}`,
     ].filter(Boolean);
-    const uniqueUrls = Array.from(new Set(urls));
+
+    if (config.env === 'production') {
+      candidateUrls.push(`https://docbrain-ai-1.onrender.com${endpoint}`);
+    }
+
+    const uniqueUrls = Array.from(new Set(candidateUrls));
 
     let lastError = 'AI Microservice is unreachable';
     for (const targetUrl of uniqueUrls) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         const response = await fetch(targetUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          signal: controller.signal,
         });
+        clearTimeout(timeoutId);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
@@ -182,12 +198,17 @@ export class DocumentService {
 
   public static async getStudySet(userId: string, documentId: string) {
     const doc = await this.getDocumentById(userId, documentId);
+    if ((doc as any).studySetData) {
+      return { documentId, ...(doc as any).studySetData };
+    }
+
     const absPath = doc.fileUrl ? path.resolve(doc.fileUrl) : undefined;
     const data = await this.postToAiService('/api/v1/study/quiz-and-flashcards', {
       vector_collection_id: doc.vectorCollectionId,
       file_url: absPath,
       title: doc.title,
     });
+    await documentRepository.update(documentId, { studySetData: data });
     return { documentId, ...data };
   }
 

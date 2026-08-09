@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, GraduationCap, HelpCircle, Layers, Volume2, Download, CheckCircle2, XCircle, RotateCcw, Loader2, Play, Pause, Sparkles, FileText, AlertCircle } from 'lucide-react';
 import { fetchApi, API_BASE_URL } from '../../lib/api-client';
+import { useStudySetQuery } from '../../hooks/useDocumentHooks';
 import type { IStudySet } from '@pdf-chatbot/shared';
 
 interface StudyHubModalProps {
@@ -17,9 +18,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
   documentTitle,
 }) => {
   const [activeTab, setActiveTab] = useState<'quiz' | 'flashcards' | 'audio'>('quiz');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [studySet, setStudySet] = useState<IStudySet | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { data: studySet, isLoading: loading, error: queryError, refetch } = useStudySetQuery(documentId, isOpen);
 
   // Quiz state
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
@@ -36,10 +35,10 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
   const [isPlayingTts, setIsPlayingTts] = useState<boolean>(false);
   const [audioError, setAudioError] = useState<boolean>(false);
 
+  const error = queryError ? ((queryError as Error).message || 'Failed to fetch study set') : null;
+
   useEffect(() => {
-    if (isOpen && documentId) {
-      setLoading(true);
-      setError(null);
+    if (isOpen) {
       setQuizAnswers({});
       setSubmittedQuiz(false);
       setCurrentCardIndex(0);
@@ -52,19 +51,6 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
         window.speechSynthesis.cancel();
       }
       setIsPlayingTts(false);
-
-      fetchApi<IStudySet>(`/documents/${documentId}/study-set`)
-        .then((res) => {
-          if (res.success && res.data) {
-            setStudySet(res.data);
-          } else {
-            setError(res.message || 'Failed to load study set');
-          }
-        })
-        .catch((err) => {
-          setError(err.message || 'Failed to fetch study set');
-        })
-        .finally(() => setLoading(false));
     }
 
     return () => {
@@ -215,18 +201,8 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                 {error.includes('fetch') ? 'Backend or AI microservice is currently starting up or offline. Make sure backend service (Port 5000) and AI service (Port 8001) are running.' : error}
               </p>
               <button
-                onClick={() => {
-                  setLoading(true);
-                  setError(null);
-                  fetchApi<IStudySet>(`/documents/${documentId}/study-set`)
-                    .then((res) => {
-                      if (res.success && res.data) setStudySet(res.data);
-                      else setError(res.message || 'Failed to load study set');
-                    })
-                    .catch((err) => setError(err.message || 'Failed to fetch study set'))
-                    .finally(() => setLoading(false));
-                }}
-                className="mt-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs rounded-xl shadow-md transition-all"
+                onClick={() => refetch()}
+                className="mt-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs rounded-xl shadow-md transition-all cursor-pointer"
               >
                 Retry Generating Study Set
               </button>
