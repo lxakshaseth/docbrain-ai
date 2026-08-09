@@ -44,13 +44,13 @@ export const ConversationList: React.FC = () => {
                 onClick={() => handleSelectConversation(conv)}
                 className={`flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-xs transition-all border ${
                   isActive
-                    ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-950 dark:text-indigo-200 shadow-xs font-medium'
-                    : 'bg-white dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
+                    ? 'bg-indigo-50/80 border-indigo-200 text-indigo-900 dark:bg-indigo-500/10 dark:border-indigo-500/40 dark:text-indigo-200 shadow-xs font-semibold'
+                    : 'bg-white dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                    ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
                 }`}>
                   <MessageSquare className="w-3.5 h-3.5" />

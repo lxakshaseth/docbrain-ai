@@ -20,7 +20,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
         // Code block line
         if (trimmed.startsWith('```')) {
           return (
-            <div key={idx} className="my-2 p-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg font-mono text-xs text-blue-600 dark:text-blue-300 overflow-x-auto">
+            <div key={idx} className="my-2.5 p-3.5 bg-slate-900 text-slate-100 border border-slate-800 rounded-xl font-mono text-xs overflow-x-auto shadow-xs">
               {trimmed.replace(/```[a-z]*/g, '')}
             </div>
           );
@@ -31,7 +31,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
           const text = trimmed.substring(2);
           return (
             <div key={idx} className="flex items-start gap-2 ml-2">
-              <span className="text-blue-600 dark:text-blue-400 font-bold">•</span>
+              <span className="text-indigo-600 dark:text-blue-400 font-bold">•</span>
               <span>{parseInlineMarkdown(text)}</span>
             </div>
           );
@@ -66,7 +66,7 @@ function parseInlineMarkdown(text: string): React.ReactNode {
       return <strong key={index} className="font-semibold text-slate-900 dark:text-white">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={index} className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-xs font-mono text-indigo-600 dark:text-indigo-300">{part.slice(1, -1)}</code>;
+      return <code key={index} className="px-1.5 py-0.5 bg-indigo-50 dark:bg-slate-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-slate-800 rounded-md text-xs font-mono">{part.slice(1, -1)}</code>;
     }
     return part;
   });

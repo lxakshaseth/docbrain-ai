@@ -70,7 +70,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
+    <div className="flex flex-col h-screen bg-slate-50/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-hidden transition-colors duration-250" suppressHydrationWarning>
       {/* Root Feature Modals */}
       <AuthModal />
 
@@ -133,11 +133,11 @@ export default function Home() {
           )}
 
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-purple-600 flex items-center justify-center shadow-md">
               <Cpu className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:to-indigo-300">
+              <h1 className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 dark:from-blue-400 dark:to-indigo-300">
                 DocBrain AI
               </h1>
               <p className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">Intelligent PDF Knowledge Assistant</p>
@@ -154,14 +154,14 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setAuthModalOpen(true, 'login')}
-                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5"
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/80 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-xs"
                 suppressHydrationWarning
               >
-                <LogIn className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Sign In
+                <LogIn className="w-3.5 h-3.5 text-indigo-600 dark:text-blue-400" /> Sign In
               </button>
               <button
                 onClick={() => setAuthModalOpen(true, 'register')}
-                className="px-4 py-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 font-semibold text-xs text-white rounded-xl shadow-md transition-all flex items-center gap-1.5"
+                className="px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 font-semibold text-xs text-white rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center gap-1.5"
                 suppressHydrationWarning
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Get Started
@@ -176,13 +176,13 @@ export default function Home() {
         <div className="flex-1 flex p-3 gap-3 overflow-hidden relative">
           {/* Left Sidebar */}
           <aside
-            className={`fixed md:relative inset-y-0 left-0 z-20 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-3 shadow-xs transition-all duration-300 ${
+            className={`fixed md:relative inset-y-0 left-0 z-20 w-72 flex flex-col gap-3 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-3 shadow-xs shadow-slate-200/50 transition-all duration-300 ${
               isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
             } ${isSidebarCollapsed ? 'md:hidden' : 'md:flex'}`}
           >
             <DocumentUpload compact />
 
-            <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs font-medium shrink-0">
+            <div className="grid grid-cols-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200/80 dark:border-slate-800/60 text-xs font-medium shrink-0">
               <button
                 onClick={() => setActiveTab('documents')}
                 className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
@@ -223,7 +223,7 @@ export default function Home() {
           {isMobileSidebarOpen && (
             <div
               onClick={() => setIsMobileSidebarOpen(false)}
-              className="fixed inset-0 z-10 bg-black/50 backdrop-blur-xs md:hidden"
+              className="fixed inset-0 z-10 bg-slate-900/35 backdrop-blur-xs md:hidden"
             />
           )}
 

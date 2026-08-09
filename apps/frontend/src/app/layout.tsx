@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={sansFont.variable} suppressHydrationWarning>
-      <body className="antialiased min-h-screen font-sans bg-slate-900 text-slate-100" suppressHydrationWarning>
+      <body className="antialiased min-h-screen font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200" suppressHydrationWarning>
         <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>

@@ -129,7 +129,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                 onClick={() => handleSelectDocument(doc)}
                 className={`relative group flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
                   isActive
-                    ? 'bg-blue-500/10 border-blue-500/40 text-blue-950 dark:text-blue-100 shadow-xs font-medium'
+                    ? 'bg-indigo-50/80 border-indigo-200 text-indigo-900 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-xs font-semibold'
                     : 'bg-white dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                 }`}
               >
@@ -138,21 +138,21 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                     type="checkbox"
                     checked={isChecked}
                     onChange={(e) => toggleSelectDocForCompare(doc.id, e as any)}
-                    className="w-3.5 h-3.5 rounded border-slate-700 text-emerald-500 focus:ring-0 cursor-pointer shrink-0"
+                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer shrink-0"
                     title="Select for multi-doc comparison"
                   />
 
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                     isActive
-                      ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-blue-500'
+                      ? 'bg-indigo-100 text-indigo-600 dark:bg-blue-500/20 dark:text-blue-400'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600'
                   }`}>
                     <FileText className="w-4 h-4" />
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium truncate leading-tight">{doc.title}</p>
-                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                       <span className="shrink-0">{doc.chunkCount > 0 ? `${doc.chunkCount} chunks` : 'Processing...'}</span>
                       <span>•</span>
                       <Badge variant={doc.status as any}>{doc.status}</Badge>
@@ -179,7 +179,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                   {isMenuOpen && (
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute right-0 top-8 z-50 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1 text-xs font-normal transition-all"
+                      className="absolute right-0 top-8 z-50 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl shadow-slate-900/10 dark:shadow-black/50 py-1 text-xs font-normal transition-all"
                     >
                       <button
                         onClick={() => {
