@@ -56,10 +56,11 @@ app.use('/api/v1', async (_req: Request, res: Response, next: NextFunction) => {
       await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 4000 });
       next();
     } catch (err: any) {
-      logger.error('Database connection error:', err.message || err);
+      const errorMsg = err?.message || err?.stack || String(err);
+      logger.error(`Database connection error: ${errorMsg}`);
       return ApiResult.error(
         res,
-        'Database connection unavailable. Please ensure MONGODB_URI is configured in Render environment variables and 0.0.0.0/0 is allowed in MongoDB Atlas Network Access.',
+        `Database connection unavailable (${errorMsg}). Please ensure MONGODB_URI is configured and your current IP address is whitelisted in MongoDB Atlas Network Access (0.0.0.0/0).`,
         503,
         'DATABASE_DISCONNECTED'
       );
@@ -126,8 +127,9 @@ const startServer = async () => {
     await mongoose.connect(config.mongoUri);
     logger.info('Connected to MongoDB successfully');
   } catch (error: any) {
-    logger.error('Failed to connect to MongoDB:', error.message || error);
-    logger.warn('Please ensure MONGODB_URI is set in your Render environment variables.');
+    const errorMsg = error?.message || error?.stack || String(error);
+    logger.error(`Failed to connect to MongoDB: ${errorMsg}`);
+    logger.warn('Please ensure MONGODB_URI is set correctly and 0.0.0.0/0 is allowed in MongoDB Atlas Network Access.');
   }
 
   // Connect to Redis Pub/Sub

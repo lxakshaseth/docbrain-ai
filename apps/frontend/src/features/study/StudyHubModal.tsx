@@ -138,17 +138,17 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 dark:bg-black/75 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl w-full max-w-3xl h-[85vh] flex flex-col overflow-hidden shadow-2xl shadow-slate-900/10 dark:shadow-black/50 transition-all">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950 shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl text-white">
+            <div className="p-2 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-xl text-white shadow-sm">
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">AI Study & Research Hub</h3>
-              <p className="text-xs text-slate-400 truncate max-w-xs sm:max-w-md">{documentTitle}</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">AI Study & Research Hub</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs sm:max-w-md">{documentTitle}</p>
             </div>
           </div>
           <button
@@ -158,20 +158,20 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
               }
               onClose();
             }}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-800 bg-slate-950/60 px-5 gap-4 shrink-0 text-xs font-semibold">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/60 px-5 gap-4 shrink-0 text-xs font-semibold">
           <button
             onClick={() => setActiveTab('quiz')}
             className={`flex items-center gap-1.5 py-3 border-b-2 transition-all ${
               activeTab === 'quiz'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-purple-600 text-purple-600 dark:border-purple-500 dark:text-purple-400 font-bold'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <HelpCircle className="w-4 h-4" /> Practice Quiz
@@ -180,8 +180,8 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
             onClick={() => setActiveTab('flashcards')}
             className={`flex items-center gap-1.5 py-3 border-b-2 transition-all ${
               activeTab === 'flashcards'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-purple-600 text-purple-600 dark:border-purple-500 dark:text-purple-400 font-bold'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <Layers className="w-4 h-4" /> Flashcard Decks
@@ -190,8 +190,8 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
             onClick={() => setActiveTab('audio')}
             className={`flex items-center gap-1.5 py-3 border-b-2 transition-all ${
               activeTab === 'audio'
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-purple-600 text-purple-600 dark:border-purple-500 dark:text-purple-400 font-bold'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
             }`}
           >
             <Volume2 className="w-4 h-4" /> Audio Podcast Overview
@@ -199,19 +199,19 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6 overflow-y-auto bg-slate-950/40 text-slate-200">
+        <div className="flex-1 p-6 overflow-y-auto bg-slate-50/50 dark:bg-slate-950/40 text-slate-800 dark:text-slate-200">
           {loading ? (
-            <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-400 text-sm">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+            <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400 text-sm">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-600 dark:text-purple-500" />
               <span>Generating personalized quiz & flashcards from document...</span>
             </div>
           ) : error ? (
-            <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-300 text-sm text-center p-6">
-              <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400">
+            <div className="h-full flex flex-col items-center justify-center gap-3 text-slate-700 dark:text-slate-300 text-sm text-center p-6">
+              <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-600 dark:text-purple-400">
                 <GraduationCap className="w-8 h-8" />
               </div>
-              <h4 className="font-bold text-white text-base">Unable to connect to AI Study Service</h4>
-              <p className="text-xs text-slate-400 max-w-sm">
+              <h4 className="font-bold text-slate-900 dark:text-white text-base">Unable to connect to AI Study Service</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
                 {error.includes('fetch') ? 'Backend or AI microservice is currently starting up or offline. Make sure backend service (Port 5000) and AI service (Port 8001) are running.' : error}
               </p>
               <button
@@ -242,33 +242,33 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                     return (
                       <div
                         key={q.id || qIdx}
-                        className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3"
+                        className="bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 space-y-3 shadow-xs"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-sm font-semibold text-slate-100">
+                          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                             {qIdx + 1}. {q.question}
                           </h4>
                           {submittedQuiz && (
                             isCorrect ? (
-                              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             ) : (
-                              <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                              <XCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
                             )
                           )}
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {q.options.map((opt, optIdx) => {
-                            let btnStyle = "border-slate-800 bg-slate-950/60 text-slate-300 hover:bg-slate-800";
+                            let btnStyle = "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800";
                             if (selectedOpt === optIdx) {
-                              btnStyle = "border-purple-500 bg-purple-500/20 text-purple-300 font-medium";
+                              btnStyle = "border-purple-500 bg-purple-500/10 text-purple-700 dark:text-purple-300 font-semibold";
                             }
 
                             if (submittedQuiz) {
                               if (optIdx === q.correctAnswerIndex) {
-                                btnStyle = "border-emerald-500 bg-emerald-500/20 text-emerald-300 font-semibold";
+                                btnStyle = "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold";
                               } else if (selectedOpt === optIdx && !isCorrect) {
-                                btnStyle = "border-rose-500 bg-rose-500/20 text-rose-300 line-through";
+                                btnStyle = "border-rose-500 bg-rose-500/10 text-rose-700 dark:text-rose-300 line-through";
                               }
                             }
 
@@ -277,7 +277,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                                 key={optIdx}
                                 disabled={submittedQuiz}
                                 onClick={() => setQuizAnswers(prev => ({ ...prev, [q.id]: optIdx }))}
-                                className={`text-left px-3 py-2 rounded-lg border text-xs transition-all ${btnStyle}`}
+                                className={`text-left px-3.5 py-2.5 rounded-xl border text-xs transition-all ${btnStyle}`}
                               >
                                 <span className="font-mono mr-2 text-slate-400">{String.fromCharCode(65 + optIdx)}.</span>
                                 {opt}
@@ -338,31 +338,31 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
 
                       <div
                         onClick={() => setIsFlipped(!isFlipped)}
-                        className="h-64 w-full bg-slate-900 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer shadow-xl transition-all relative select-none"
+                        className="h-64 w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-purple-500/40 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer shadow-lg shadow-slate-200/50 dark:shadow-xl transition-all relative select-none"
                       >
-                        <span className="absolute top-4 right-4 text-[10px] uppercase tracking-wider font-semibold text-slate-500 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-800">
+                        <span className="absolute top-4 right-4 text-[10px] uppercase tracking-wider font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-950 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-800">
                           {isFlipped ? 'Answer' : 'Front'}
                         </span>
 
-                        <p className="text-sm sm:text-base font-medium text-slate-100">
+                        <p className="text-sm sm:text-base font-medium text-slate-900 dark:text-slate-100">
                           {isFlipped
                             ? studySet.flashcards[currentCardIndex]?.back
                             : studySet.flashcards[currentCardIndex]?.front}
                         </p>
 
-                        <span className="absolute bottom-4 text-[11px] text-slate-500">
+                        <span className="absolute bottom-4 text-[11px] text-slate-400 dark:text-slate-500">
                           Click to {isFlipped ? 'see front' : 'flip answer'}
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
                         <button
                           onClick={() => {
                             setIsFlipped(false);
                             setCurrentCardIndex(prev => Math.max(0, prev - 1));
                           }}
                           disabled={currentCardIndex === 0}
-                          className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 rounded-lg disabled:opacity-40"
+                          className="px-3.5 py-1.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl disabled:opacity-40 shadow-xs transition-colors"
                         >
                           Previous
                         </button>
@@ -375,7 +375,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                             setCurrentCardIndex(prev => Math.min(studySet.flashcards.length - 1, prev + 1));
                           }}
                           disabled={currentCardIndex === studySet.flashcards.length - 1}
-                          className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 rounded-lg disabled:opacity-40"
+                          className="px-3.5 py-1.5 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl disabled:opacity-40 shadow-xs transition-colors"
                         >
                           Next
                         </button>
