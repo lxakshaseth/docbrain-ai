@@ -129,8 +129,8 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                 onClick={() => handleSelectDocument(doc)}
                 className={`relative group flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${
                   isActive
-                    ? 'bg-indigo-50/90 border-indigo-200 text-indigo-950 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-xs font-semibold'
-                    : 'bg-white dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-300/80 shadow-2xs'
+                    ? 'bg-[#eef2ff] border-[#c7d2fe] text-indigo-950 dark:bg-blue-500/10 dark:border-blue-500/40 dark:text-blue-100 shadow-2xs font-extrabold'
+                    : 'bg-white dark:bg-slate-900/60 border-[#e2e0d7] dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-[#faf9f6] hover:border-[#d5d3c8] shadow-2xs'
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0 pr-1 flex-1">
@@ -138,21 +138,21 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                     type="checkbox"
                     checked={isChecked}
                     onChange={(e) => toggleSelectDocForCompare(doc.id, e as any)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer shrink-0"
+                    className="w-3.5 h-3.5 rounded border-[#d0ceb8] dark:border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer shrink-0"
                     title="Select for multi-doc comparison"
                   />
 
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                     isActive
-                      ? 'bg-indigo-100 text-indigo-600 dark:bg-blue-500/20 dark:text-blue-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600'
+                      ? 'bg-indigo-100 text-indigo-700 dark:bg-blue-500/20 dark:text-blue-400'
+                      : 'bg-[#f0eee6] dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:text-indigo-600'
                   }`}>
                     <FileText className="w-4 h-4" />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium truncate leading-tight">{doc.title}</p>
-                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-xs font-bold truncate leading-tight text-slate-900 dark:text-slate-100">{doc.title}</p>
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">
                       <span className="shrink-0">{doc.chunkCount > 0 ? `${doc.chunkCount} chunks` : 'Processing...'}</span>
                       <span>•</span>
                       <Badge variant={doc.status as any}>{doc.status}</Badge>
