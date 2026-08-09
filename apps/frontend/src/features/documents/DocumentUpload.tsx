@@ -98,7 +98,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ compact = false,
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-indigo-500/20 hover:shadow-lg transition-all active:scale-[0.99] disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-[0.99] disabled:opacity-50"
         >
           {uploading ? (
             <Loader2 className="w-4 h-4 animate-spin text-white" />

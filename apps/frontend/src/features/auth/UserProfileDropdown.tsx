@@ -61,10 +61,10 @@ export const UserProfileDropdown: React.FC = () => {
         {/* Trigger Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border transition-all duration-200 outline-none focus:ring-2 focus:ring-blue-500/40 ${
+          className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border transition-all duration-200 outline-none focus:ring-2 focus:ring-indigo-500/40 ${
             isOpen
-              ? 'bg-slate-100 dark:bg-slate-800/90 border-slate-300 dark:border-slate-700 shadow-md text-slate-900 dark:text-slate-100'
-              : 'bg-slate-100/80 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+              ? 'bg-slate-100 dark:bg-slate-800/90 border-slate-300 dark:border-slate-700 shadow-xs text-slate-900 dark:text-slate-100'
+              : 'bg-white dark:bg-slate-800/50 border-slate-200/90 dark:border-slate-700/60 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-2xs'
           }`}
           aria-expanded={isOpen}
           aria-haspopup="true"

@@ -160,11 +160,11 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   ];
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-slate-950 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs transition-colors duration-250">
+    <div className="flex flex-col h-screen max-h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-md shadow-slate-200/40 dark:shadow-none transition-colors duration-250">
       {/* Workspace Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm shadow-indigo-500/20">
             <FileText className="w-4 h-4" />
           </div>
           <div className="min-w-0">
@@ -184,7 +184,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           <div className="flex items-center flex-wrap gap-1.5">
             <button
               onClick={() => onOpenPdfViewer && onOpenPdfViewer(1)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/30 text-xs font-semibold rounded-xl transition-all shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 text-blue-700 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 dark:text-blue-400 border border-blue-200/80 dark:border-blue-500/30 text-xs font-semibold rounded-xl transition-all shadow-2xs"
               title="Open Interactive PDF Reader"
             >
               <Eye className="w-3.5 h-3.5" /> PDF Reader
@@ -192,7 +192,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
             <button
               onClick={() => onOpenSummary && onOpenSummary(activeDocument)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 text-xs font-semibold rounded-xl transition-all shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 border border-indigo-200/80 dark:border-indigo-500/30 text-xs font-semibold rounded-xl transition-all shadow-2xs"
               title="AI Executive Summary & Mind Map"
             >
               <Brain className="w-3.5 h-3.5" /> Summary & Map
@@ -200,7 +200,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
             <button
               onClick={() => onOpenStudy && onOpenStudy(activeDocument)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-500/30 text-xs font-semibold rounded-xl transition-all shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100/80 text-purple-700 dark:bg-purple-500/10 dark:hover:bg-purple-500/20 dark:text-purple-400 border border-purple-200/80 dark:border-purple-500/30 text-xs font-semibold rounded-xl transition-all shadow-2xs"
               title="Quiz & Flashcard Study Hub"
             >
               <GraduationCap className="w-3.5 h-3.5" /> Study Hub
@@ -208,7 +208,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
             <button
               onClick={() => onOpenShare && onOpenShare(activeDocument)}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold rounded-xl transition-all shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/30 text-xs font-semibold rounded-xl transition-all shadow-2xs"
               title="Public Share Link"
             >
               <Share2 className="w-3.5 h-3.5" /> Share
@@ -217,7 +217,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
             {displayMessages.length > 0 && (
               <button
                 onClick={handleExportChat}
-                className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-xl transition-all shadow-xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 text-xs font-semibold rounded-xl transition-all shadow-2xs"
                 title="Export Chat as Markdown"
               >
                 <Download className="w-3.5 h-3.5" /> Export MD
@@ -229,7 +229,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                 setActiveConversation(null);
                 setOptimisticMessages([]);
               }}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-semibold rounded-xl transition-all shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-800 text-xs font-semibold rounded-xl transition-all shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5 text-indigo-600 dark:text-blue-500" /> New Chat
             </button>
@@ -238,26 +238,28 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
       </div>
 
       {/* Main Canvas */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-10">
+      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-10 bg-slate-50/40 dark:bg-slate-900/40">
         <div className="max-w-7xl mx-auto space-y-4">
           {!activeDocument ? (
-            <div className="h-full min-h-[380px] flex flex-col items-center justify-center text-center p-8">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-blue-950/50 border border-indigo-100 dark:border-blue-900/50 flex items-center justify-center mb-4 text-indigo-600 dark:text-blue-400">
-                <FileText className="w-7 h-7" />
+            <div className="h-full min-h-[420px] flex flex-col items-center justify-center text-center p-8">
+              <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-50/90 via-white to-blue-50/60 dark:from-indigo-950/30 dark:to-slate-900 border border-indigo-100/90 dark:border-indigo-900/30 shadow-sm max-w-md space-y-3 flex flex-col items-center">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/25">
+                  <FileText className="w-7 h-7" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Document Selected</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Upload a new PDF or select an existing document from the sidebar to begin instant AI-powered Q&A.
+                </p>
               </div>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-200">No Document Selected</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1.5 leading-relaxed">
-                Upload a new PDF or select an existing document from the sidebar to begin instant AI-powered Q&A.
-              </p>
             </div>
           ) : displayMessages.length === 0 ? (
             <div className="min-h-[420px] flex flex-col items-center justify-center text-center p-6">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-purple-600 flex items-center justify-center text-white mb-3 shadow-md">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-blue-600 flex items-center justify-center text-white mb-3 shadow-md shadow-indigo-500/20">
                 <Sparkles className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200">Knowledge Base Ingested</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mt-1 mb-6">
-                Ask any question about <span className="font-medium text-slate-800 dark:text-slate-300">"{activeDocument.title}"</span>.
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-200">Knowledge Base Ingested</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mt-1 mb-6">
+                Ask any question about <span className="font-semibold text-slate-900 dark:text-slate-200">"{activeDocument.title}"</span>.
               </p>
 
               {/* Starter Prompt Cards */}
@@ -266,13 +268,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                   <button
                     key={idx}
                     onClick={() => handleSendMessageText(prompt.text)}
-                    className="p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 hover:border-indigo-500/40 text-left transition-all hover:shadow-xs group shadow-xs"
+                    className="p-4 rounded-2xl bg-white hover:bg-indigo-50/30 dark:bg-slate-900/60 border border-slate-200/80 hover:border-indigo-300 dark:border-slate-800/80 text-left transition-all hover:shadow-xs group shadow-2xs"
                   >
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1 group-hover:text-indigo-600 dark:group-hover:text-blue-400">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-slate-200 mb-1 group-hover:text-indigo-600 dark:group-hover:text-blue-400">
                       <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span>{prompt.title}</span>
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                       {prompt.text}
                     </p>
                   </button>
@@ -296,7 +298,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-sm">
                 <Loader2 className="w-4 h-4 animate-spin" />
               </div>
-              <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl rounded-tl-xs px-4 py-3 text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 shadow-xs">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl rounded-tl-xs px-4 py-3 text-xs text-slate-700 dark:text-slate-300 flex items-center gap-2 shadow-2xs">
                 <span>AI Agent is formulating response...</span>
               </div>
             </div>
@@ -307,11 +309,11 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
       </div>
 
       {/* Floating Bottom Chat Input */}
-      <div className="p-4 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md shrink-0 border-t border-slate-200/80 dark:border-slate-800/80">
+      <div className="p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shrink-0 border-t border-slate-200/80 dark:border-slate-800">
         <div className="max-w-7xl mx-auto">
           <form
             onSubmit={handleSubmit}
-            className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/80 focus-within:border-indigo-500/50 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all shadow-sm shadow-slate-200/50"
+            className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
           >
             <input
               type="text"
@@ -323,13 +325,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                   ? 'Select a document from sidebar to ask questions...'
                   : `Ask anything about ${activeDocument.title}...`
               }
-              className="flex-1 bg-transparent px-3 py-2 text-xs md:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none disabled:opacity-50"
+              className="flex-1 bg-transparent px-3.5 py-2 text-xs md:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none disabled:opacity-50"
             />
 
             <button
               type="submit"
               disabled={!inputQuery.trim() || !activeDocument || isStreaming}
-              className="w-9 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold shadow-xs transition-all disabled:opacity-40 disabled:hover:bg-indigo-600 flex items-center justify-center shrink-0"
+              className="w-9 h-9 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl font-bold shadow-sm shadow-indigo-600/30 transition-all disabled:opacity-40 disabled:hover:bg-indigo-600 flex items-center justify-center shrink-0"
               title="Send message"
             >
               {isStreaming ? (
