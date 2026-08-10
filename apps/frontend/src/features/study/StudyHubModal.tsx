@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, GraduationCap, HelpCircle, Layers, Volume2, Download, CheckCircle2, XCircle, RotateCcw, Loader2, Play, Pause, Sparkles, FileText, AlertCircle } from 'lucide-react';
 import { fetchApi, API_BASE_URL } from '../../lib/api-client';
 import { useStudySetQuery } from '../../hooks/useDocumentHooks';
-import type { IStudySet } from '@pdf-chatbot/shared';
+import type { IStudySet, IFlashcard, IQuizQuestion } from '@pdf-chatbot/shared';
 
 interface StudyHubModalProps {
   isOpen: boolean;
@@ -113,7 +113,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
   const exportAnkiCsv = () => {
     if (!studySet?.flashcards?.length) return;
     const csvContent = "data:text/csv;charset=utf-8," 
-      + studySet.flashcards.map(c => `"${c.front.replace(/"/g, '""')}","${c.back.replace(/"/g, '""')}"`).join("\n");
+      + studySet.flashcards.map((c: IFlashcard) => `"${c.front.replace(/"/g, '""')}","${c.back.replace(/"/g, '""')}"`).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -211,7 +211,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
             <>
               {activeTab === 'quiz' && (
                 <div className="space-y-6">
-                  {studySet?.quizzes?.map((q, qIdx) => {
+                  {studySet?.quizzes?.map((q: IQuizQuestion, qIdx: number) => {
                     const selectedOpt = quizAnswers[q.id];
                     const isCorrect = selectedOpt === q.correctAnswerIndex;
 
@@ -234,7 +234,7 @@ export const StudyHubModal: React.FC<StudyHubModalProps> = ({
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {q.options.map((opt, optIdx) => {
+                          {q.options.map((opt: string, optIdx: number) => {
                             let btnStyle = "border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800";
                             if (selectedOpt === optIdx) {
                               btnStyle = "border-purple-500 bg-purple-500/10 text-purple-700 dark:text-purple-300 font-semibold";
