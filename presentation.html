@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocBrain AI - Project Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0F172A;
+            --card-bg: #1E293B;
+            --card-border: #334155;
+            --accent-cyan: #06B6D4;
+            --accent-cyan-light: #67E8F9;
+            --accent-emerald: #10B981;
+            --accent-purple: #A855F7;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Header Navigation */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background-color: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-cyan-light);
+        }
+
+        .brand-badge {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan-light);
+        }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: #0F172A;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-cyan-light);
+            color: #0F172A;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        select.slide-select {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        select.slide-select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        /* Presentation Container */
+        .stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            max-height: 680px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            flex-direction: column;
+            animation: fadeIn 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Slide Typography */
+        .slide-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .slide-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            flex: 1;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .grid-2x2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-header {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-cyan .card-header { color: var(--accent-cyan); }
+        .card-emerald .card-header { color: var(--accent-emerald); }
+        .card-purple .card-header { color: var(--accent-purple); }
+        .card-light-cyan .card-header { color: var(--accent-cyan-light); }
+
+        .card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card li {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .card li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+
+        /* Hero Slide Specific */
+        .hero-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 16px;
+            padding: 48px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.15);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #67E8F9 0%, #06B6D4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 24px;
+        }
+
+        .hero-desc {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .badge-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .tech-badge {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: var(--accent-cyan-light);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Table Styling */
+        table.tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table.tech-table th, table.tech-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+            font-size: 0.9rem;
+        }
+
+        table.tech-table th {
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        table.tech-table td {
+            color: var(--text-muted);
+        }
+
+        table.tech-table td strong {
+            color: var(--text-main);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 4px;
+            background: var(--card-border);
+            width: 100%;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan) 0%, var(--accent-emerald) 100%);
+            width: 8.33%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="brand">
+            <span>DocBrain AI</span>
+            <span class="brand-badge">Project Presentation</span>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="prevBtn" onclick="prevSlide()">‹ Prev</button>
+            <select class="slide-select" id="slideSelect" onchange="jumpToSlide(this.value)">
+                <option value="0">1. Title & Overview</option>
+                <option value="1">2. Executive Summary</option>
+                <option value="2">3. Architecture Overview</option>
+                <option value="3">4. Redis Event Broker</option>
+                <option value="4">5. LangGraph Workflow</option>
+                <option value="5">5. Hybrid RAG Strategy</option>
+                <option value="6">7. AI Study Suite</option>
+                <option value="7">8. Tech Stack Matrix</option>
+                <option value="8">9. Security & Auth</option>
+                <option value="9">10. API & Health Checks</option>
+                <option value="10">11. Cloud Deployment</option>
+                <option value="11">12. Key Summary</option>
+            </select>
+            <button class="btn" id="nextBtn" onclick="nextSlide()">Next ›</button>
+            <button class="btn" onclick="toggleFullscreen()">Fullscreen (F)</button>
+            <a href="DocBrain_AI_Project_Presentation.pptx" download class="btn btn-primary">⬇ Download PPTX</a>
+        </div>
+    </header>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Main Presentation Stage -->
+    <main class="stage">
+
+        <!-- SLIDE 1: Hero -->
+        <section class="slide active">
+            <div class="hero-card">
+                <div class="slide-tag">DocBrain AI • Enterprise AI System</div>
+                <h1 class="hero-title">DocBrain AI</h1>
+                <h2 class="hero-subtitle">Enterprise PDF Knowledge Base & Async RAG System</h2>
+                <p class="hero-desc">
+                    A production-grade, clean-architecture AI microservice platform powered by Next.js 15, Node.js Express, Python FastAPI, LangGraph StateGraph, ChromaDB Vector Store, and Redis Pub/Sub Event Broker.
+                </p>
+                <div class="badge-bar">
+                    <span class="tech-badge">⚡ Next.js 15</span>
+                    <span class="tech-badge">🚀 Node.js / Express</span>
+                    <span class="tech-badge">🐍 Python FastAPI</span>
+                    <span class="tech-badge">📊 LangGraph StateGraph</span>
+                    <span class="tech-badge">🧠 ChromaDB Vectors</span>
+                    <span class="tech-badge">📡 Redis Pub/Sub</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: Executive Summary -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Executive Summary</div>
+            <h2 class="slide-title">Executive Summary & Core Value Proposition</h2>
+            <div class="grid-2">
+                <div class="card card-cyan">
+                    <div class="card-header">🎯 The Challenge</div>
+                    <ul>
+                        <li>Traditional search fails on unstructured multi-page PDF documents.</li>
+                        <li>Monolithic AI backends cause CPU/Memory bottlenecks on HTTP API routes.</li>
+                        <li>Pure vector search suffers from hallucination without exact keyword precision.</li>
+                        <li>Requirement for secure multi-tenant authorization and document boundaries.</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🚀 The Solution</div>
+                    <ul>
+                        <li>Decoupled Event Architecture: Redis Pub/Sub eliminates backend HTTP waiting.</li>
+                        <li>Hybrid RAG Engine: Combines ChromaDB Vector Search + BM25 Sparse Keyword Search via Reciprocal Rank Fusion.</li>
+                        <li>LangGraph StateGraph Workflow: Multi-step pipeline with self-correcting grounded answers & auto-generated follow-ups.</li>
+                        <li>Full AI Study Suite: Summaries, interactive mind maps, flashcards, and gTTS audio overviews.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: Architecture -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Architecture</div>
+            <h2 class="slide-title">Microservices System Architecture</h2>
+            <div class="grid-4">
+                <div class="card card-cyan">
+                    <div class="card-header">1. Next.js 15 UI</div>
+                    <ul>
+                        <li>React 18 & Zustand</li>
+                        <li>TanStack React Query</li>
+                        <li>Tailwind CSS & Shadcn</li>
+                        <li>Streaming Chat & Markdown</li>
+                    </ul>
+                </div>
+                <div class="card card-light-cyan">
+                    <div class="card-header">2. Express Gateway</div>
+                    <ul>
+                        <li>Clean Architecture</li>
+                        <li>JWT Auth & RBAC</li>
+                        <li>Zod DTO Validation</li>
+                        <li>Swagger UI OpenAPI</li>
+                    </ul>
+                </div>
+                <div class="card card-purple">
+                    <div class="card-header">3. Redis Event Broker</div>
+                    <ul>
+                        <li>Zero Direct HTTP Coupling</li>
+                        <li>Channel: pdf:ingest</li>
+                        <li>Channel: rag:query</li>
+                        <li>Real-time SSE Streaming</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">4. Python AI Service</div>
+                    <ul>
+                        <li>FastAPI & LangGraph</li>
+                        <li>ChromaDB Vector Store</li>
+                        <li>Sparse BM25 Search Engine</li>
+                        <li>Groq LPU & Gemini LLMs</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: Redis Pub/Sub -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Event Driven</div>
+            <h2 class="slide-title">Mandatory Redis Event Broker Architecture</h2>
+            <div class="grid-2">
+                <div class="card card-purple">
+                    <div class="card-header">📡 Redis Event Channels</div>
+                    <ul>
+                        <li><strong>pdf:ingest:request</strong> - Node backend publishes upload metadata.</li>
+                        <li><strong>pdf:ingest:response</strong> - Python service returns ingestion status & chunk metrics.</li>
+                        <li><strong>rag:query:request</strong> - Node publishes prompt payload & chat session ID.</li>
+                        <li><strong>rag:stream:chunk</strong> - Token-by-token pub/sub streaming to Node SSE handler.</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🛡️ System Advantages</div>
+                    <ul>
+                        <li><strong>Non-blocking API:</strong> Node.js HTTP event loop remains responsive under high load.</li>
+                        <li><strong>Independent Scaling:</strong> Python AI workers scale independently based on vector load.</li>
+                        <li><strong>Fault Isolation:</strong> AI crashes do not affect web authentication or user databases.</li>
+                        <li><strong>Zero HTTP Wait:</strong> Mandatory microservice decoupling principle enforced.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: LangGraph -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • AI Engine</div>
+            <h2 class="slide-title">LangGraph StateGraph RAG Pipeline</h2>
+            <div class="grid-3">
+                <div class="card card-cyan">
+                    <div class="card-header">STEP 1: hybrid_retrieve</div>
+                    <ul>
+                        <li>Queries ChromaDB Dense Embeddings.</li>
+                        <li>Queries Sparse BM25 Keyword Index.</li>
+                        <li>Fuses rank scores using Reciprocal Rank Fusion.</li>
+                        <li>Retrieves top-k grounded snippets.</li>
+                    </ul>
+                </div>
+                <div class="card card-light-cyan">
+                    <div class="card-header">STEP 2: generate_answer</div>
+                    <ul>
+                        <li>Injects strict anti-hallucination prompt.</li>
+                        <li>Loads conversation history memory.</li>
+                        <li>Invokes Groq Llama-3.1-70b / Gemini.</li>
+                        <li>Enforces exact document attribution.</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">STEP 3: generate_followups</div>
+                    <ul>
+                        <li>Parses answer and retrieved context.</li>
+                        <li>Generates 3 logical follow-up prompts.</li>
+                        <li>Returns structured JSON to client.</li>
+                        <li>Drives interactive exploration.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: Hybrid Retrieval -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Retrieval Engine</div>
+            <h2 class="slide-title">Hybrid Search Engine: BM25 + ChromaDB Vector RRF</h2>
+            <div class="grid-2">
+                <div class="card card-cyan">
+                    <div class="card-header">🧠 Search Mechanics</div>
+                    <ul>
+                        <li><strong>ChromaDB Dense Vectors:</strong> Captures high-level semantic intent & contextual concepts.</li>
+                        <li><strong>Sparse BM25 Keyword Search:</strong> Matches technical codes, formulas, proper nouns, and exact text.</li>
+                        <li><strong>Reciprocal Rank Fusion (RRF):</strong> Merges rankings smoothly without requiring score normalization.</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🎯 Accuracy & Reliability</div>
+                    <ul>
+                        <li><strong>Zero-Context Fallback:</strong> Rejects prompts outside PDF content scope.</li>
+                        <li><strong>Exact Citation:</strong> Every answer provides page numbers and text offsets.</li>
+                        <li><strong>Recursive Text Splitter:</strong> 1000 chunk size with 200 character overlap.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: AI Study Suite -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Features</div>
+            <h2 class="slide-title">Advanced Features & AI Study Suite</h2>
+            <div class="grid-2x2">
+                <div class="card card-cyan">
+                    <div class="card-header">📄 Executive Summaries</div>
+                    <ul><li>Auto-generates section summaries & key bullet points upon PDF ingestion.</li></ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🗺️ Mind Maps & Flashcards</div>
+                    <ul><li>Extracts entity relationships into visual mind maps and revision flashcards.</li></ul>
+                </div>
+                <div class="card card-light-cyan">
+                    <div class="card-header">📊 Multi-PDF Comparison</div>
+                    <ul><li>Side-by-side comparison highlighting key differences and overlapping points.</li></ul>
+                </div>
+                <div class="card card-purple">
+                    <div class="card-header">🔊 Audio Overview & Public Share</div>
+                    <ul><li>Text-to-speech audio via gTTS engine & secure public share links (/share/:token).</li></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: Tech Stack Matrix -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Tech Stack</div>
+            <h2 class="slide-title">Full-Stack Technology Breakdown</h2>
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Technology Stack</th>
+                        <th>Role & Responsibility</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Frontend UI</strong></td>
+                        <td>Next.js 15, React 18, Tailwind, Zustand</td>
+                        <td>App Router, Zustand state, TanStack Query, SSE streaming chat</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backend API</strong></td>
+                        <td>Node.js, Express, TypeScript, Zod, Swagger</td>
+                        <td>JWT Auth, RBAC middleware, DTO validation, Swagger OpenAPI docs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AI Microservice</strong></td>
+                        <td>Python 3.11, FastAPI, LangGraph, PyPDF, gTTS</td>
+                        <td>State graph workflow, ChromaDB vector store, BM25 indexing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Databases</strong></td>
+                        <td>ChromaDB (Vector Store), MongoDB Atlas</td>
+                        <td>Vector embeddings, user accounts, document metadata & history</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Event Bus</strong></td>
+                        <td>Redis Pub/Sub, Docker, Docker Compose</td>
+                        <td>Asynchronous event bus, containerization, deployment isolation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SLIDE 9: Security -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Security</div>
+            <h2 class="slide-title">Security, Auth & Data Integrity</h2>
+            <div class="grid-3">
+                <div class="card card-cyan">
+                    <div class="card-header">🔐 JWT Auth & RBAC</div>
+                    <ul>
+                        <li>Stateless JSON Web Tokens.</li>
+                        <li>Bcrypt password hashing.</li>
+                        <li>RBAC middleware enforcing document user boundaries.</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🛡️ DTO Validation</div>
+                    <ul>
+                        <li>Zod schemas on all Express HTTP endpoints.</li>
+                        <li>Pydantic schemas on Redis Pub/Sub messages.</li>
+                        <li>Sanitized input streams.</li>
+                    </ul>
+                </div>
+                <div class="card card-light-cyan">
+                    <div class="card-header">📁 File & Vector Isolation</div>
+                    <ul>
+                        <li>Multer file upload MIME type validation.</li>
+                        <li>Isolated vector namespaces per user.</li>
+                        <li>Zero cross-tenant vector leakage.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: API & Health -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Monitoring</div>
+            <h2 class="slide-title">API Documentation & Health Monitoring</h2>
+            <div class="grid-2">
+                <div class="card card-cyan">
+                    <div class="card-header">📖 Interactive Swagger UI</div>
+                    <ul>
+                        <li>Hosted at <code>http://localhost:5000/api-docs</code>.</li>
+                        <li>Complete OpenAPI 3.0 specs for Auth, Document & Chat modules.</li>
+                        <li>Interactive sandbox for testing JWT Bearer authentication.</li>
+                    </ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🧪 Multi-Tier Health Check Endpoints</div>
+                    <ul>
+                        <li><strong>GET /health</strong> - Backend status & DB connection state.</li>
+                        <li><strong>GET /health/redis</strong> - Verifies Redis Pub/Sub connectivity.</li>
+                        <li><strong>GET /api/v1/health</strong> - Python FastAPI & ChromaDB readiness.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 11: Deployment -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • DevOps</div>
+            <h2 class="slide-title">Cloud Deployment Strategy</h2>
+            <div class="grid-2x2">
+                <div class="card card-cyan">
+                    <div class="card-header">▲ Vercel (Frontend)</div>
+                    <ul><li>Deploys Next.js 15 App Router with automatic CDN caching and edge deployment.</li></ul>
+                </div>
+                <div class="card card-emerald">
+                    <div class="card-header">🔷 Render Blueprint (Backend & AI)</div>
+                    <ul><li>1-Click deployment via render.yaml for Node backend & Python AI microservice.</li></ul>
+                </div>
+                <div class="card card-light-cyan">
+                    <div class="card-header">🍃 MongoDB Atlas (Cloud NoSQL)</div>
+                    <ul><li>Free M0 cluster for persistent document metadata and user authentication.</li></ul>
+                </div>
+                <div class="card card-purple">
+                    <div class="card-header">⚡ Upstash Redis (Serverless)</div>
+                    <ul><li>Serverless Redis Pub/Sub broker enabling cross-cloud event communication.</li></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 12: Summary -->
+        <section class="slide">
+            <div class="slide-tag">DocBrain AI • Summary</div>
+            <h2 class="slide-title">Key Summary & Milestones</h2>
+            <div class="hero-card" style="text-align: left; align-items: flex-start;">
+                <h3 style="color: var(--accent-light-cyan); font-size: 1.5rem; margin-bottom: 16px;">🏆 Key Accomplishments</h3>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 1.05rem; color: var(--text-main);">
+                    <li>✅ <strong>Event-Driven Architecture:</strong> Decoupled microservices via mandatory Redis Pub/Sub event bus.</li>
+                    <li>✅ <strong>Hybrid RAG Search:</strong> Fused Dense ChromaDB Vectors + Sparse BM25 Keywords via Reciprocal Rank Fusion.</li>
+                    <li>✅ <strong>LangGraph State Graph:</strong> Automated graph execution with self-correcting prompts & follow-up questions.</li>
+                    <li>✅ <strong>Full Feature Set:</strong> PDF Chat, Executive Summaries, Mind Maps, Flashcards, Comparison, and gTTS Audio Overviews.</li>
+                    <li>✅ <strong>DevOps & Security:</strong> Docker Compose, Render Blueprint, Swagger UI, and JWT/RBAC multi-tenant isolation.</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const slideSelect = document.getElementById('slideSelect');
+        const progressFill = document.getElementById('progressFill');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            slideSelect.value = currentSlide;
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressFill.style.width = progress + '%';
+
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function jumpToSlide(index) {
+            currentSlide = parseInt(index, 10);
+            updateSlide();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable fullscreen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
