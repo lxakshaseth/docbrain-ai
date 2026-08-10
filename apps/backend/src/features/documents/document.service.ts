@@ -145,6 +145,8 @@ export class DocumentService {
     const candidateUrls = [
       config.aiServiceUrl ? `${config.aiServiceUrl}${endpoint}` : '',
       process.env.AI_SERVICE_URL ? `${process.env.AI_SERVICE_URL}${endpoint}` : '',
+      `http://docbrain-ai-1:8001${endpoint}`,
+      `http://docbrain-ai-1:10000${endpoint}`,
       `http://127.0.0.1:8001${endpoint}`,
       `http://localhost:8001${endpoint}`,
     ].filter(Boolean);
